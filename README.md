@@ -16,7 +16,7 @@
 - ⏰ **Odliczanie do premiery** — animowany countdown timer
 - 💻 **Animacja pisania** — efekt terminala z humorystycznymi komendami
 - 🌌 **Particle background** — animowane cząsteczki z połączeniami
-- 🔨 **Animowane paski budowlane** — bo strona jest *w budowie*!
+- 🔨 **Animowane paski budowlane** — bo strona jest _w budowie_!
 - 📱 **W pełni responsywna** — mobile-first design
 - 🔗 **Social links** — GitHub, Discord, E-mail
 
