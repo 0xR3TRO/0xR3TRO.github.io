@@ -1409,7 +1409,7 @@
                         <div class="tiles-container" id="tilesContainer"></div>
                         <!-- Overlays -->
                         <div class="game-overlay" id="gameOverOverlay">
-                            <h3>Game Over 💀</h3>
+                            <h3>Koniec gry 💀</h3>
                             <p>Wynik: <span id="finalScore">0</span></p>
                             <button class="game-btn" onclick="game.restart()">
                                 🔄 Zagraj ponownie
@@ -1444,37 +1444,13 @@
                     <div class="mobile-controls">
                         <div class="dpad">
                             <div class="dpad-btn empty"></div>
-                            <button
-                                class="dpad-btn"
-                                ontouchstart="game.move('up')"
-                                onclick="game.move('up')"
-                            >
-                                ▲
-                            </button>
+                            <button class="dpad-btn" data-dir="up">▲</button>
                             <div class="dpad-btn empty"></div>
-                            <button
-                                class="dpad-btn"
-                                ontouchstart="game.move('left')"
-                                onclick="game.move('left')"
-                            >
-                                ◀
-                            </button>
+                            <button class="dpad-btn" data-dir="left">◀</button>
                             <div class="dpad-btn empty"></div>
-                            <button
-                                class="dpad-btn"
-                                ontouchstart="game.move('right')"
-                                onclick="game.move('right')"
-                            >
-                                ▶
-                            </button>
+                            <button class="dpad-btn" data-dir="right">▶</button>
                             <div class="dpad-btn empty"></div>
-                            <button
-                                class="dpad-btn"
-                                ontouchstart="game.move('down')"
-                                onclick="game.move('down')"
-                            >
-                                ▼
-                            </button>
+                            <button class="dpad-btn" data-dir="down">▼</button>
                             <div class="dpad-btn empty"></div>
                         </div>
                     </div>
@@ -1640,7 +1616,7 @@
             })();
 
             /* ═══════════════════════════════════════════════
-       2048 GAME ENGINE
+       2048 GAME ENGINE (fully rewritten)
        ═══════════════════════════════════════════════ */
             class Game2048 {
                 constructor() {
@@ -1656,6 +1632,7 @@
                     this.previousState = null;
                     this.previousScore = 0;
                     this.tileId = 0;
+                    this.moveLock = false;
 
                     this.boardEl = document.getElementById("gameBoard");
                     this.tilesEl = document.getElementById("tilesContainer");
@@ -1681,6 +1658,7 @@
                     this.keepPlaying = false;
                     this.previousState = null;
                     this.tileId = 0;
+                    this.moveLock = false;
                     this.scoreEl.textContent = "0";
                     this.overOverlay.classList.remove("active");
                     this.winOverlay.classList.remove("active");
@@ -1718,25 +1696,11 @@
                     };
                 }
 
-                /* ── Movement ── */
+                /* ── Core Movement Logic ── */
                 move(direction) {
                     if (this.over || (this.won && !this.keepPlaying)) return;
+                    if (this.moveLock) return;
 
-                    // Save state for undo
-                    this.previousState = this.board.map((row) =>
-                        row.map((cell) => (cell ? { ...cell } : null)),
-                    );
-                    this.previousScore = this.score;
-
-                    // Clear flags
-                    for (let r = 0; r < this.size; r++)
-                        for (let c = 0; c < this.size; c++)
-                            if (this.board[r][c]) {
-                                this.board[r][c].isNew = false;
-                                this.board[r][c].merged = false;
-                            }
-
-                    let moved = false;
                     const vectors = {
                         up: { dr: -1, dc: 0 },
                         down: { dr: 1, dc: 0 },
@@ -1746,7 +1710,23 @@
                     const v = vectors[direction];
                     if (!v) return;
 
-                    // Build traversal order
+                    // Save state for undo
+                    this.previousState = this.board.map((row) =>
+                        row.map((cell) => (cell ? { ...cell } : null)),
+                    );
+                    this.previousScore = this.score;
+
+                    // Clear animation flags
+                    for (let r = 0; r < this.size; r++)
+                        for (let c = 0; c < this.size; c++)
+                            if (this.board[r][c]) {
+                                this.board[r][c].isNew = false;
+                                this.board[r][c].merged = false;
+                            }
+
+                    let moved = false;
+
+                    // Build traversal order depending on direction
                     const rows = [...Array(this.size).keys()];
                     const cols = [...Array(this.size).keys()];
                     if (v.dr === 1) rows.reverse();
@@ -1757,8 +1737,11 @@
                             const cell = this.board[r][c];
                             if (!cell) continue;
 
-                            let nr = r,
-                                nc = c;
+                            // Find farthest empty position in direction
+                            let nr = r;
+                            let nc = c;
+                            let mergeTarget = null;
+
                             while (true) {
                                 const tr = nr + v.dr;
                                 const tc = nc + v.dc;
@@ -1769,50 +1752,57 @@
                                     tc >= this.size
                                 )
                                     break;
+
                                 if (this.board[tr][tc]) {
+                                    // Found a tile — can we merge?
                                     if (
                                         this.board[tr][tc].value ===
                                             cell.value &&
                                         !this.board[tr][tc].merged
                                     ) {
-                                        // Merge
-                                        const newValue = cell.value * 2;
-                                        this.board[tr][tc] = {
-                                            value: newValue,
-                                            id: ++this.tileId,
-                                            isNew: false,
-                                            merged: true,
-                                        };
-                                        this.board[nr][nc] = null;
-                                        this.score += newValue;
-                                        moved = true;
-
-                                        if (
-                                            newValue === 2048 &&
-                                            !this.won &&
-                                            !this.keepPlaying
-                                        ) {
-                                            this.won = true;
-                                        }
+                                        mergeTarget = { r: tr, c: tc };
                                     }
                                     break;
                                 }
+
+                                // Empty cell — keep moving
                                 nr = tr;
                                 nc = tc;
                             }
 
-                            if (nr !== r || nc !== c) {
-                                if (this.board[nr][nc] === cell) {
-                                    // slide without merge
-                                    this.board[nr][nc] = cell;
-                                    this.board[r][c] = null;
-                                    moved = true;
+                            if (mergeTarget) {
+                                // Merge into target
+                                const newValue = cell.value * 2;
+                                this.board[mergeTarget.r][mergeTarget.c] = {
+                                    value: newValue,
+                                    id: ++this.tileId,
+                                    isNew: false,
+                                    merged: true,
+                                };
+                                this.board[r][c] = null;
+                                this.score += newValue;
+                                moved = true;
+
+                                if (
+                                    newValue === 2048 &&
+                                    !this.won &&
+                                    !this.keepPlaying
+                                ) {
+                                    this.won = true;
                                 }
+                            } else if (nr !== r || nc !== c) {
+                                // Slide to farthest empty cell
+                                this.board[nr][nc] = cell;
+                                this.board[r][c] = null;
+                                moved = true;
                             }
                         }
                     }
 
                     if (moved) {
+                        // Brief lock to prevent rapid-fire moves before render
+                        this.moveLock = true;
+
                         this.addRandomTile();
                         this.updateScore();
                         this.render();
@@ -1827,8 +1817,13 @@
                                 this.score;
                             this.overOverlay.classList.add("active");
                         }
+
+                        // Unlock after animation
+                        setTimeout(() => {
+                            this.moveLock = false;
+                        }, 160);
                     } else {
-                        // restore previous state (no undo consumed)
+                        // Nothing moved — discard undo snapshot
                         this.previousState = null;
                     }
                 }
@@ -1882,7 +1877,6 @@
 
                     const containerRect = this.tilesEl.getBoundingClientRect();
                     const cw = containerRect.width;
-                    const ch = containerRect.height;
                     const gap = cw > 300 ? 8 : 6;
                     const tileSize = (cw - gap * (this.size - 1)) / this.size;
 
@@ -1923,7 +1917,7 @@
 
                 /* ── Input Setup ── */
                 setupInput() {
-                    // Keyboard
+                    // Keyboard — arrow keys + WASD
                     document.addEventListener("keydown", (e) => {
                         const map = {
                             ArrowUp: "up",
@@ -1947,29 +1941,45 @@
                     });
 
                     // Touch / Swipe on game board
-                    let startX, startY;
                     const board = this.boardEl;
+                    let touchStartX = null;
+                    let touchStartY = null;
+                    let touching = false;
 
                     board.addEventListener(
                         "touchstart",
                         (e) => {
-                            const touch = e.touches[0];
-                            startX = touch.clientX;
-                            startY = touch.clientY;
+                            if (e.touches.length !== 1) return;
+                            const t = e.touches[0];
+                            touchStartX = t.clientX;
+                            touchStartY = t.clientY;
+                            touching = true;
                         },
-                        { passive: true },
+                        { passive: false },
+                    );
+
+                    board.addEventListener(
+                        "touchmove",
+                        (e) => {
+                            if (touching) e.preventDefault();
+                        },
+                        { passive: false },
                     );
 
                     board.addEventListener(
                         "touchend",
                         (e) => {
-                            if (startX === undefined) return;
-                            const touch = e.changedTouches[0];
-                            const dx = touch.clientX - startX;
-                            const dy = touch.clientY - startY;
+                            if (!touching || touchStartX === null) return;
+                            touching = false;
+                            const t = e.changedTouches[0];
+                            const dx = t.clientX - touchStartX;
+                            const dy = t.clientY - touchStartY;
                             const absDx = Math.abs(dx);
                             const absDy = Math.abs(dy);
-                            const minSwipe = 30;
+                            const minSwipe = 20;
+
+                            touchStartX = null;
+                            touchStartY = null;
 
                             if (Math.max(absDx, absDy) < minSwipe) return;
 
@@ -1978,7 +1988,16 @@
                             } else {
                                 this.move(dy > 0 ? "down" : "up");
                             }
-                            startX = startY = undefined;
+                        },
+                        { passive: false },
+                    );
+
+                    board.addEventListener(
+                        "touchcancel",
+                        () => {
+                            touching = false;
+                            touchStartX = null;
+                            touchStartY = null;
                         },
                         { passive: true },
                     );
@@ -1991,15 +2010,16 @@
                         mouseDown = true;
                         mx = e.clientX;
                         my = e.clientY;
+                        e.preventDefault();
                     });
-                    board.addEventListener("mouseup", (e) => {
+                    window.addEventListener("mouseup", (e) => {
                         if (!mouseDown) return;
                         mouseDown = false;
                         const dx = e.clientX - mx;
                         const dy = e.clientY - my;
                         const absDx = Math.abs(dx);
                         const absDy = Math.abs(dy);
-                        if (Math.max(absDx, absDy) < 30) return;
+                        if (Math.max(absDx, absDy) < 20) return;
                         if (absDx > absDy) {
                             this.move(dx > 0 ? "right" : "left");
                         } else {
@@ -2007,8 +2027,39 @@
                         }
                     });
 
+                    // D-Pad mobile buttons (use event delegation, no double fire)
+                    document
+                        .querySelectorAll(".dpad-btn[data-dir]")
+                        .forEach((btn) => {
+                            let handled = false;
+                            btn.addEventListener(
+                                "touchstart",
+                                (e) => {
+                                    e.preventDefault();
+                                    if (!handled) {
+                                        handled = true;
+                                        this.move(btn.dataset.dir);
+                                        setTimeout(() => {
+                                            handled = false;
+                                        }, 200);
+                                    }
+                                },
+                                { passive: false },
+                            );
+                            btn.addEventListener("click", (e) => {
+                                // Only fires on desktop (no touch)
+                                if (!handled) {
+                                    this.move(btn.dataset.dir);
+                                }
+                            });
+                        });
+
                     // Re-render on resize for correct tile positioning
-                    window.addEventListener("resize", () => this.render());
+                    let resizeTimer;
+                    window.addEventListener("resize", () => {
+                        clearTimeout(resizeTimer);
+                        resizeTimer = setTimeout(() => this.render(), 50);
+                    });
                 }
             }
 
