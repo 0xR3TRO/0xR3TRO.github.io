@@ -13,11 +13,12 @@ Projekty pod tą samą domeną (osobne repozytoria):
 
 - [klefas.me/arcade](https://klefas.me/arcade/) — R3TRO Arcade, 14 gier w przeglądarce ([kod](https://github.com/0xR3TRO/arcade))
 - [klefas.me/lab](https://klefas.me/lab/) — R3TRO Lab, 24 małe aplikacje i eksperymenty UI ([kod](https://github.com/0xR3TRO/lab))
+- [klefas.me/budgetly](https://klefas.me/budgetly/) — Budgetly, budżet domowy w przeglądarce ([kod](https://github.com/0xR3TRO/budgetly))
 
 ## ✨ Funkcje
 
 - 🎨 **Automatyczny motyw ciemny/jasny** — detekcja preferencji systemowych + ręczny przełącznik
-- 🧩 **Projekty** — karty prowadzące do R3TRO Arcade i R3TRO Lab
+- 🧩 **Projekty** — karty prowadzące do R3TRO Arcade, R3TRO Lab i Budgetly
 - 💻 **Animacja pisania** — efekt terminala z humorystycznymi komendami
 - 🌌 **Particle background** — animowane cząsteczki z połączeniami
 - 🔨 **Animowane paski budowlane** — bo strona jest _w budowie_!

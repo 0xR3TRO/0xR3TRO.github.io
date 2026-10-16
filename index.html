@@ -467,7 +467,7 @@
             }
             .project-grid {
                 display: grid;
-                grid-template-columns: repeat(2, 1fr);
+                grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
                 gap: 16px;
             }
             .project-card {
@@ -797,6 +797,12 @@
                         <span class="project-title">24 małe aplikacje</span>
                         <span class="project-desc">Narzędzia, widgety i eksperymenty UI w czystym HTML, CSS i JavaScript.</span>
                         <span class="project-link">klefas.me/lab →</span>
+                    </a>
+                    <a href="/budgetly/" class="project-card">
+                        <span class="project-label">Budgetly</span>
+                        <span class="project-title">Budżet domowy</span>
+                        <span class="project-desc">Wydatki, kategorie, miesięczny budżet i wykresy. Dane zostają na Twoim urządzeniu.</span>
+                        <span class="project-link">klefas.me/budgetly →</span>
                     </a>
                 </div>
                 <p class="projects-more">
