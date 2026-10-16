@@ -9,28 +9,37 @@
 
 **[klefas.me](https://klefas.me)**
 
+Projekty pod tą samą domeną (osobne repozytoria):
+
+- [klefas.me/arcade](https://klefas.me/arcade/) — R3TRO Arcade, 14 gier w przeglądarce ([kod](https://github.com/0xR3TRO/arcade))
+- [klefas.me/lab](https://klefas.me/lab/) — R3TRO Lab, 24 małe aplikacje i eksperymenty UI ([kod](https://github.com/0xR3TRO/lab))
+
 ## ✨ Funkcje
 
 - 🎨 **Automatyczny motyw ciemny/jasny** — detekcja preferencji systemowych + ręczny przełącznik
-- 🎮 **Gra 2048** — w pełni grywalna, responsywna (dotyk + klawiatura + swipe)
-- ⏰ **Odliczanie do premiery** — animowany countdown timer
+- 🧩 **Projekty** — karty prowadzące do R3TRO Arcade i R3TRO Lab
 - 💻 **Animacja pisania** — efekt terminala z humorystycznymi komendami
 - 🌌 **Particle background** — animowane cząsteczki z połączeniami
 - 🔨 **Animowane paski budowlane** — bo strona jest _w budowie_!
 - 📱 **W pełni responsywna** — mobile-first design
-- 🔗 **Social links** — GitHub, Discord, E-mail
+- 🔗 **Linki** — GitHub, e-mail
+- ↪️ **Przekierowania** — stare adresy `/r3tro-arcade/` i `/web-lab/` prowadzą do nowych
 
 ## 🛠️ Stack technologiczny
 
 - **HTML5** + **CSS3** + **JavaScript** (Vanilla)
 - **GitHub Pages** + **GitHub Actions** (Static HTML deploy)
-- **Google Fonts** — Inter + JetBrains Mono
+- **Fonty Inter i JetBrains Mono** hostowane na stronie — przeglądarka nie łączy się z Google
 - Zero zależności, zero frameworków
 
 ## 📁 Struktura
 
 ```
 ├── index.html          # Cała strona (single-file)
+├── 404.html            # Strona błędu + przekierowania starych adresów
+├── fonts/              # Fonty (SIL OFL 1.1) i fonts.css
+├── r3tro-arcade/       # Przekierowanie na /arcade/
+├── web-lab/            # Przekierowanie na /lab/
 ├── CNAME               # Domena klefas.me
 ├── .nojekyll           # Wyłącz Jekyll na GitHub Pages
 ├── .github/
@@ -45,4 +54,4 @@ Strona deployuje się automatycznie przez GitHub Actions po każdym pushu do ga�
 
 ## 📜 Licencja
 
-© 2026 klefas.me — Wszelkie prawa zastrzeżone.
+Kod strony: [MIT](LICENSE). Treści (teksty, nazwa i wygląd marki): zastrzeżone, zob. [NOTICE.md](NOTICE.md). Fonty: SIL Open Font License 1.1, zob. `fonts/OFL-*.txt`.

@@ -9,21 +9,21 @@
         <title>klefas.me — Strona w budowie 🚧</title>
         <meta
             name="description"
-            content="Strona klefas.me jest aktualnie w budowie. Zapraszam wkrótce! W międzyczasie zagraj w 2048."
+            content="Strona klefas.me jest aktualnie w budowie. W międzyczasie zajrzyj do moich projektów: R3TRO Arcade i R3TRO Lab."
         />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://klefas.me/" />
         <meta property="og:title" content="klefas.me — Strona w budowie 🚧" />
         <meta
             property="og:description"
-            content="Pracuję nad czymś wyjątkowym. Zapraszam wkrótce — a w międzyczasie zagraj w 2048! 🎮"
+            content="Pracuję nad czymś wyjątkowym. Zapraszam wkrótce — a w międzyczasie zajrzyj do moich projektów."
         />
         <meta property="og:image" content="https://klefas.me/og-image.png" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="klefas.me — Strona w budowie 🚧" />
         <meta
             name="twitter:description"
-            content="Pracuję nad czymś wyjątkowym. Zapraszam wkrótce — a w międzyczasie zagraj w 2048! 🎮"
+            content="Pracuję nad czymś wyjątkowym. Zapraszam wkrótce — a w międzyczasie zajrzyj do moich projektów."
         />
         <meta
             name="theme-color"
@@ -40,12 +40,7 @@
             rel="icon"
             href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚀</text></svg>"
         />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-        <link
-            href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap"
-            rel="stylesheet"
-        />
+        <link rel="stylesheet" href="/fonts/fonts.css" />
         <style>
             /* ═══════════════════════════════════════
                CSS VARIABLES & THEME SYSTEM
@@ -59,8 +54,6 @@
                 --bg-secondary: #12121a;
                 --bg-card: #1a1a2e;
                 --bg-card-hover: #222240;
-                --bg-game: #16213e;
-                --bg-cell: #1a1a2e;
                 --text-primary: #e8e8f0;
                 --text-secondary: #9090a8;
                 --text-muted: #5a5a72;
@@ -74,30 +67,6 @@
                 --glass-border: rgba(255, 255, 255, 0.08);
                 --scrollbar-track: #12121a;
                 --scrollbar-thumb: #2a2a40;
-                --tile-2: #2a2a4a;
-                --tile-2-text: #e8e8f0;
-                --tile-4: #33335a;
-                --tile-4-text: #e8e8f0;
-                --tile-8: #5b4bb8;
-                --tile-8-text: #ffffff;
-                --tile-16: #6c63ff;
-                --tile-16-text: #ffffff;
-                --tile-32: #7c6fff;
-                --tile-32-text: #ffffff;
-                --tile-64: #ff6b9d;
-                --tile-64-text: #ffffff;
-                --tile-128: #ff5277;
-                --tile-128-text: #ffffff;
-                --tile-256: #ffc107;
-                --tile-256-text: #1a1a2e;
-                --tile-512: #ff9800;
-                --tile-512-text: #ffffff;
-                --tile-1024: #f44336;
-                --tile-1024-text: #ffffff;
-                --tile-2048: #e91e63;
-                --tile-2048-text: #ffffff;
-                --tile-super: linear-gradient(135deg, #6c63ff, #ff6b9d);
-                --tile-super-text: #ffffff;
             }
 
             [data-theme="light"] {
@@ -105,8 +74,6 @@
                 --bg-secondary: #e8e8f0;
                 --bg-card: #ffffff;
                 --bg-card-hover: #f5f5ff;
-                --bg-game: #e8e0d8;
-                --bg-cell: #cdc1b4;
                 --text-primary: #1a1a2e;
                 --text-secondary: #5a5a72;
                 --text-muted: #9090a8;
@@ -120,30 +87,6 @@
                 --glass-border: rgba(0, 0, 0, 0.06);
                 --scrollbar-track: #e8e8f0;
                 --scrollbar-thumb: #c0c0d0;
-                --tile-2: #eee4da;
-                --tile-2-text: #776e65;
-                --tile-4: #ede0c8;
-                --tile-4-text: #776e65;
-                --tile-8: #f2b179;
-                --tile-8-text: #ffffff;
-                --tile-16: #f59563;
-                --tile-16-text: #ffffff;
-                --tile-32: #f67c5f;
-                --tile-32-text: #ffffff;
-                --tile-64: #f65e3b;
-                --tile-64-text: #ffffff;
-                --tile-128: #edcf72;
-                --tile-128-text: #ffffff;
-                --tile-256: #edcc61;
-                --tile-256-text: #ffffff;
-                --tile-512: #edc850;
-                --tile-512-text: #ffffff;
-                --tile-1024: #edc53f;
-                --tile-1024-text: #ffffff;
-                --tile-2048: #edc22e;
-                --tile-2048-text: #ffffff;
-                --tile-super: linear-gradient(135deg, #6c63ff, #ff6b9d);
-                --tile-super-text: #ffffff;
             }
 
             /* ═══════════════════════════════════════
@@ -498,12 +441,8 @@
             }
 
             /* ═══════════════════════════════════════
-               GAME SECTION
+               SECTIONS
                ═══════════════════════════════════════ */
-            .game-section {
-                width: 100%;
-                animation: fadeInUp 0.6s ease 0.5s both;
-            }
             .section-header {
                 text-align: center;
                 margin-bottom: 24px;
@@ -518,381 +457,72 @@
                 color: var(--text-secondary);
                 font-size: 0.95rem;
             }
-            .game-container {
-                background: var(--bg-card);
-                border: 1px solid var(--border);
-                border-radius: 20px;
-                padding: 24px;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                gap: 16px;
-            }
-            .game-header {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                width: 100%;
-                max-width: 400px;
-            }
-            .game-title-block h3 {
-                font-family: "JetBrains Mono", monospace;
-                font-size: 2rem;
-                font-weight: 800;
-                background: linear-gradient(
-                    135deg,
-                    var(--accent),
-                    var(--accent-secondary)
-                );
-                -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
-                background-clip: text;
-            }
-            .score-board {
-                display: flex;
-                gap: 8px;
-            }
-            .score-box {
-                background: var(--bg-secondary);
-                border: 1px solid var(--border);
-                border-radius: 10px;
-                padding: 6px 16px;
-                text-align: center;
-                min-width: 70px;
-            }
-            .score-box .label {
-                font-size: 10px;
-                font-weight: 700;
-                text-transform: uppercase;
-                letter-spacing: 1px;
-                color: var(--text-muted);
-            }
-            .score-box .value {
-                font-family: "JetBrains Mono", monospace;
-                font-size: 1.2rem;
-                font-weight: 800;
-                color: var(--text-primary);
-            }
-
-            /* ── Game Grid ── */
-            .game-board {
-                position: relative;
-                width: 100%;
-                max-width: min(400px, calc(100vw - 80px));
-                aspect-ratio: 1;
-                background: var(--bg-game);
-                border-radius: 12px;
-                padding: 8px;
-                touch-action: none;
-                user-select: none;
-                -webkit-user-select: none;
-            }
-            .grid-bg {
-                display: grid;
-                grid-template-columns: repeat(4, 1fr);
-                grid-template-rows: repeat(4, 1fr);
-                gap: 8px;
-                width: 100%;
-                height: 100%;
-            }
-            .grid-cell {
-                background: var(--bg-cell);
-                border-radius: 8px;
-            }
-            .tiles-container {
-                position: absolute;
-                top: 8px;
-                left: 8px;
-                right: 8px;
-                bottom: 8px;
-            }
-            .tile {
-                position: absolute;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-family: "JetBrains Mono", monospace;
-                font-weight: 800;
-                border-radius: 8px;
-                transition:
-                    top 0.12s ease-out,
-                    left 0.12s ease-out;
-                z-index: 10;
-                will-change: top, left;
-            }
-            .tile.tile-new {
-                animation: tileAppear 0.2s ease;
-            }
-            .tile.tile-merged {
-                animation: tilePop 0.25s ease;
-                z-index: 20;
-            }
-
-            @keyframes tileAppear {
-                0% {
-                    transform: scale(0);
-                    opacity: 0;
-                }
-                100% {
-                    transform: scale(1);
-                    opacity: 1;
-                }
-            }
-            @keyframes tilePop {
-                0% {
-                    transform: scale(1);
-                }
-                50% {
-                    transform: scale(1.2);
-                }
-                100% {
-                    transform: scale(1);
-                }
-            }
-
-            .tile-2 {
-                background: var(--tile-2);
-                color: var(--tile-2-text);
-            }
-            .tile-4 {
-                background: var(--tile-4);
-                color: var(--tile-4-text);
-            }
-            .tile-8 {
-                background: var(--tile-8);
-                color: var(--tile-8-text);
-            }
-            .tile-16 {
-                background: var(--tile-16);
-                color: var(--tile-16-text);
-            }
-            .tile-32 {
-                background: var(--tile-32);
-                color: var(--tile-32-text);
-            }
-            .tile-64 {
-                background: var(--tile-64);
-                color: var(--tile-64-text);
-            }
-            .tile-128 {
-                background: var(--tile-128);
-                color: var(--tile-128-text);
-            }
-            .tile-256 {
-                background: var(--tile-256);
-                color: var(--tile-256-text);
-            }
-            .tile-512 {
-                background: var(--tile-512);
-                color: var(--tile-512-text);
-            }
-            .tile-1024 {
-                background: var(--tile-1024);
-                color: var(--tile-1024-text);
-            }
-            .tile-2048 {
-                background: var(--tile-2048);
-                color: var(--tile-2048-text);
-            }
-            .tile-super {
-                background: var(--tile-super);
-                color: var(--tile-super-text);
-            }
-
-            /* ── Game Controls ── */
-            .game-controls {
-                display: flex;
-                gap: 10px;
-                flex-wrap: wrap;
-                justify-content: center;
-            }
-            .game-btn {
-                padding: 10px 22px;
-                border-radius: 10px;
-                font-size: 14px;
-                font-weight: 600;
-                cursor: pointer;
-                border: 1px solid var(--border);
-                background: var(--bg-secondary);
-                color: var(--text-primary);
-                font-family: inherit;
-                transition: all 0.2s ease;
-                display: inline-flex;
-                align-items: center;
-                gap: 6px;
-            }
-            .game-btn:hover {
-                background: var(--accent);
-                color: #fff;
-                border-color: var(--accent);
-                transform: translateY(-2px);
-            }
-            .game-instructions {
-                color: var(--text-muted);
-                font-size: 13px;
-                text-align: center;
-                line-height: 1.6;
-            }
-            .game-instructions kbd {
-                display: inline-block;
-                padding: 2px 8px;
-                border-radius: 5px;
-                background: var(--bg-secondary);
-                border: 1px solid var(--border);
-                font-family: "JetBrains Mono", monospace;
-                font-size: 11px;
-                color: var(--text-secondary);
-            }
-
-            /* ── Overlays ── */
-            .game-overlay {
-                position: absolute;
-                inset: 0;
-                background: rgba(0, 0, 0, 0.6);
-                backdrop-filter: blur(6px);
-                -webkit-backdrop-filter: blur(6px);
-                border-radius: 12px;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
-                gap: 16px;
-                z-index: 100;
-                opacity: 0;
-                pointer-events: none;
-                transition: opacity 0.4s ease;
-            }
-            .game-overlay.active {
-                opacity: 1;
-                pointer-events: auto;
-            }
-            .game-overlay h3 {
-                font-size: 2rem;
-                font-weight: 900;
-                color: #fff;
-            }
-            .game-overlay p {
-                color: rgba(255, 255, 255, 0.7);
-                font-size: 1rem;
-            }
-            .game-overlay .game-btn {
-                background: var(--accent);
-                color: #fff;
-                border-color: var(--accent);
-            }
-
-            /* ── Merge Score Popup ── */
-            .merge-popup {
-                position: absolute;
-                text-align: center;
-                font-family: "JetBrains Mono", monospace;
-                font-size: 0.9rem;
-                font-weight: 800;
-                color: var(--accent);
-                pointer-events: none;
-                z-index: 30;
-                animation: mergeFloat 0.7s ease-out forwards;
-            }
-            @keyframes mergeFloat {
-                0% {
-                    opacity: 1;
-                    transform: translateY(0) scale(1);
-                }
-                100% {
-                    opacity: 0;
-                    transform: translateY(-35px) scale(1.3);
-                }
-            }
-
-            /* ── Mobile D-Pad ── */
-            .mobile-controls {
-                display: none;
-                width: 100%;
-                max-width: 200px;
-                margin: 0 auto;
-            }
-            .mobile-controls.visible {
-                display: block;
-            }
-            .dpad {
-                display: grid;
-                grid-template-columns: repeat(3, 1fr);
-                grid-template-rows: repeat(3, 1fr);
-                gap: 6px;
-                width: 100%;
-                aspect-ratio: 1;
-            }
-            .dpad-btn {
-                background: var(--bg-secondary);
-                border: 1px solid var(--border);
-                border-radius: 12px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-size: 24px;
-                color: var(--text-primary);
-                cursor: pointer;
-                transition: all 0.15s ease;
-                -webkit-tap-highlight-color: transparent;
-            }
-            .dpad-btn:active {
-                background: var(--accent);
-                color: #fff;
-                transform: scale(0.92);
-            }
-            .dpad-btn.empty {
-                background: transparent;
-                border: none;
-                cursor: default;
-            }
 
             /* ═══════════════════════════════════════
-               COUNTDOWN
+               PROJECTS
                ═══════════════════════════════════════ */
-            .countdown-section {
+            .projects-section {
                 width: 100%;
-                animation: fadeInUp 0.6s ease 0.35s both;
+                animation: fadeInUp 0.6s ease 0.5s both;
             }
-            .countdown-grid {
+            .project-grid {
                 display: grid;
-                grid-template-columns: repeat(4, 1fr);
-                gap: 12px;
-                max-width: 500px;
-                margin: 16px auto 0;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 16px;
             }
-            .countdown-item {
+            .project-card {
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+                padding: 24px;
                 background: var(--bg-card);
                 border: 1px solid var(--border);
-                border-radius: 14px;
-                padding: 16px 8px;
-                text-align: center;
-                transition: all 0.3s ease;
+                border-radius: 16px;
+                color: var(--text-primary);
+                text-decoration: none;
+                transition: all 0.25s ease;
             }
-            .countdown-item:hover {
-                transform: translateY(-3px);
-                box-shadow: 0 6px 20px var(--shadow);
+            .project-card:hover {
+                background: var(--bg-card-hover);
+                border-color: var(--accent);
+                transform: translateY(-4px);
+                box-shadow: 0 8px 30px var(--shadow);
             }
-            .countdown-value {
+            .project-label {
                 font-family: "JetBrains Mono", monospace;
-                font-size: clamp(1.6rem, 4vw, 2.4rem);
-                font-weight: 800;
-                background: linear-gradient(
-                    135deg,
-                    var(--accent),
-                    var(--accent-secondary)
-                );
-                -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
-                background-clip: text;
-                line-height: 1.2;
-            }
-            .countdown-label {
-                font-size: 11px;
-                font-weight: 600;
-                text-transform: uppercase;
+                font-size: 12px;
+                font-weight: 700;
                 letter-spacing: 1px;
-                color: var(--text-muted);
-                margin-top: 4px;
+                text-transform: uppercase;
+                color: var(--accent);
+            }
+            .project-title {
+                font-size: 1.25rem;
+                font-weight: 800;
+                letter-spacing: -0.5px;
+            }
+            .project-desc {
+                flex: 1;
+                color: var(--text-secondary);
+                font-size: 0.95rem;
+                line-height: 1.5;
+            }
+            .project-link {
+                font-size: 14px;
+                font-weight: 600;
+                color: var(--accent);
+            }
+            .projects-more {
+                margin-top: 16px;
+                text-align: center;
+                font-size: 14px;
+            }
+            .projects-more a {
+                color: var(--text-secondary);
+                text-decoration: none;
+            }
+            .projects-more a:hover {
+                color: var(--accent);
             }
 
             /* ═══════════════════════════════════════
@@ -1037,43 +667,23 @@
                     margin-bottom: 0;
                     font-size: 24px;
                 }
-                .game-container {
-                    padding: 16px;
-                }
-                .game-board {
-                    padding: 6px;
-                }
-                .grid-bg {
-                    gap: 6px;
-                }
-                .game-header {
-                    flex-direction: column;
-                    gap: 12px;
-                    align-items: center;
-                }
-                .game-instructions .desktop-only {
-                    display: none;
-                }
                 .navbar {
                     padding: 10px 16px;
                 }
                 .navbar-title {
                     font-size: 15px;
                 }
-                .countdown-grid {
-                    grid-template-columns: repeat(2, 1fr);
-                    gap: 8px;
+                .project-grid {
+                    grid-template-columns: 1fr;
+                }
+                .project-card {
+                    padding: 18px;
                 }
                 .social-link {
                     padding: 10px 16px;
                     font-size: 13px;
                 }
                 .social-link span {
-                    display: none;
-                }
-            }
-            @media (min-width: 641px) {
-                .game-instructions .mobile-only {
                     display: none;
                 }
             }
@@ -1114,15 +724,15 @@
                     wrócę.
                 </h1>
                 <p class="hero-description">
-                    Pracuję nad czymś wyjątkowym. W międzyczasie — pobij mój
-                    rekord w grze poniżej! 🎮
+                    Pracuję nad czymś wyjątkowym. W międzyczasie zajrzyj do
+                    moich projektów poniżej.
                 </p>
                 <div class="typing-text">
                     <span id="typingText"></span
                     ><span class="typing-cursor"></span>
                 </div>
                 <div class="hero-cta">
-                    <a href="#game" class="btn btn-primary">🎮 Zagraj w 2048</a>
+                    <a href="#projekty" class="btn btn-primary">Zobacz projekty</a>
                     <a
                         href="https://github.com/0xR3TRO"
                         target="_blank"
@@ -1169,153 +779,29 @@
                 </div>
             </section>
 
-            <!-- 🎮 Game Section (moved up — main attraction) -->
-            <section class="game-section" id="game">
+            <!-- Projects -->
+            <section class="projects-section" id="projekty">
                 <div class="section-header">
-                    <h2>🎮 Gra 2048</h2>
-                    <p>Połącz kafelki, aby osiągnąć 2048!</p>
+                    <h2>Projekty</h2>
+                    <p>Działają w przeglądarce — bez instalacji i bez śledzenia</p>
                 </div>
-                <div class="game-container">
-                    <div class="game-header">
-                        <div class="game-title-block"><h3>2048</h3></div>
-                        <div class="score-board">
-                            <div class="score-box">
-                                <div class="label">Wynik</div>
-                                <div
-                                    class="value"
-                                    id="current-score"
-                                    aria-live="polite"
-                                >
-                                    0
-                                </div>
-                            </div>
-                            <div class="score-box">
-                                <div class="label">Rekord</div>
-                                <div
-                                    class="value"
-                                    id="best-score"
-                                    aria-live="polite"
-                                >
-                                    0
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="game-board" id="gameBoard">
-                        <div class="grid-bg">
-                            <div class="grid-cell"></div>
-                            <div class="grid-cell"></div>
-                            <div class="grid-cell"></div>
-                            <div class="grid-cell"></div>
-                            <div class="grid-cell"></div>
-                            <div class="grid-cell"></div>
-                            <div class="grid-cell"></div>
-                            <div class="grid-cell"></div>
-                            <div class="grid-cell"></div>
-                            <div class="grid-cell"></div>
-                            <div class="grid-cell"></div>
-                            <div class="grid-cell"></div>
-                            <div class="grid-cell"></div>
-                            <div class="grid-cell"></div>
-                            <div class="grid-cell"></div>
-                            <div class="grid-cell"></div>
-                        </div>
-                        <div class="tiles-container" id="tilesContainer"></div>
-                        <div class="game-overlay" id="gameOverOverlay">
-                            <h3>Koniec gry 💀</h3>
-                            <p>Wynik: <span id="finalScore">0</span></p>
-                            <button class="game-btn" onclick="game.restart()">
-                                🔄 Zagraj ponownie
-                            </button>
-                        </div>
-                        <div class="game-overlay" id="winOverlay">
-                            <h3>Wygrałeś! 🎉</h3>
-                            <p>Osiągnąłeś 2048!</p>
-                            <button
-                                class="game-btn"
-                                onclick="game.continueAfterWin()"
-                            >
-                                ▶️ Graj dalej
-                            </button>
-                            <button class="game-btn" onclick="game.restart()">
-                                🔄 Nowa gra
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="game-controls">
-                        <button class="game-btn" onclick="game.restart()">
-                            🔄 Nowa gra
-                        </button>
-                        <button class="game-btn" onclick="game.undo()">
-                            ↩️ Cofnij
-                        </button>
-                    </div>
-
-                    <div class="mobile-controls" id="mobileControls">
-                        <div class="dpad">
-                            <div class="dpad-btn empty"></div>
-                            <button class="dpad-btn" data-dir="up">▲</button>
-                            <div class="dpad-btn empty"></div>
-                            <button class="dpad-btn" data-dir="left">◀</button>
-                            <div class="dpad-btn empty"></div>
-                            <button class="dpad-btn" data-dir="right">▶</button>
-                            <div class="dpad-btn empty"></div>
-                            <button class="dpad-btn" data-dir="down">▼</button>
-                            <div class="dpad-btn empty"></div>
-                        </div>
-                    </div>
-
-                    <p class="game-instructions">
-                        <span class="desktop-only"
-                            >Użyj <kbd>←</kbd> <kbd>→</kbd> <kbd>↑</kbd>
-                            <kbd>↓</kbd> lub <kbd>W</kbd> <kbd>A</kbd>
-                            <kbd>S</kbd> <kbd>D</kbd> aby przesuwać
-                            kafelki.</span
-                        >
-                        <span class="mobile-only"
-                            >Przesuń palcem po planszy lub użyj przycisków
-                            poniżej.</span
-                        >
-                    </p>
+                <div class="project-grid">
+                    <a href="/arcade/" class="project-card">
+                        <span class="project-label">R3TRO Arcade</span>
+                        <span class="project-title">14 gier w przeglądarce</span>
+                        <span class="project-desc">Łamigłówki, gry zręcznościowe i klasyki — bez reklam i bez trackerów.</span>
+                        <span class="project-link">klefas.me/arcade →</span>
+                    </a>
+                    <a href="/lab/" class="project-card">
+                        <span class="project-label">R3TRO Lab</span>
+                        <span class="project-title">24 małe aplikacje</span>
+                        <span class="project-desc">Narzędzia, widgety i eksperymenty UI w czystym HTML, CSS i JavaScript.</span>
+                        <span class="project-link">klefas.me/lab →</span>
+                    </a>
                 </div>
-            </section>
-
-            <!-- Countdown -->
-            <section class="countdown-section">
-                <div class="section-header">
-                    <h2 id="countdown-title">⏰ Odliczanie do premiery</h2>
-                    <p id="countdown-subtitle">
-                        Czas leci — ale nie tak szybko jak chciałbym!
-                    </p>
-                </div>
-                <div class="countdown-grid">
-                    <div class="countdown-item">
-                        <div class="countdown-value" id="countdown-days">
-                            00
-                        </div>
-                        <div class="countdown-label">Dni</div>
-                    </div>
-                    <div class="countdown-item">
-                        <div class="countdown-value" id="countdown-hours">
-                            00
-                        </div>
-                        <div class="countdown-label">Godzin</div>
-                    </div>
-                    <div class="countdown-item">
-                        <div class="countdown-value" id="countdown-minutes">
-                            00
-                        </div>
-                        <div class="countdown-label">Minut</div>
-                    </div>
-                    <div class="countdown-item">
-                        <div class="countdown-value" id="countdown-seconds">
-                            00
-                        </div>
-                        <div class="countdown-label">Sekund</div>
-                    </div>
-                </div>
+                <p class="projects-more">
+                    <a href="https://github.com/0xR3TRO" target="_blank" rel="noopener">Wszystkie projekty na GitHubie →</a>
+                </p>
             </section>
 
             <!-- Social Links (Discord removed — had empty link) -->
@@ -1377,7 +863,7 @@
                         >GitHub</a
                     >
                     <a href="mailto:kontakt@klefas.me">Kontakt</a>
-                    <a href="#game">Zagraj w 2048</a>
+                    <a href="#projekty">Projekty</a>
                 </div>
             </footer>
         </main>
@@ -1496,627 +982,6 @@
                 addEventListener("resize", resize);
                 init();
                 draw();
-            })();
-
-            /* ═══════════════════════════════════════════════
-           2048 GAME ENGINE
-           — smooth CSS-transition tile animation
-           — localStorage save/load
-           — multi-undo stack (10 levels)
-           — +N merge score popup
-           — touch-detection D-pad
-           ═══════════════════════════════════════════════ */
-            class Game2048 {
-                constructor() {
-                    this.size = 4;
-                    this.score = 0;
-                    this.bestScore = parseInt(
-                        localStorage.getItem("best2048") || "0",
-                    );
-                    this.won = false;
-                    this.over = false;
-                    this.keepPlaying = false;
-                    this.undoStack = [];
-                    this.maxUndo = 10;
-                    this.tileCounter = 0;
-                    this.moveLock = false;
-                    this.board = this.emptyBoard();
-                    this.tileEls = {}; // id → DOM element
-
-                    this.boardEl = document.getElementById("gameBoard");
-                    this.tilesEl = document.getElementById("tilesContainer");
-                    this.scoreEl = document.getElementById("current-score");
-                    this.bestEl = document.getElementById("best-score");
-                    this.overOvl = document.getElementById("gameOverOverlay");
-                    this.winOvl = document.getElementById("winOverlay");
-
-                    this.bestEl.textContent = this.bestScore;
-                    this.setupInput();
-
-                    if (!this.loadState()) this.initNew();
-                }
-
-                emptyBoard() {
-                    return Array.from({ length: this.size }, () =>
-                        Array(this.size).fill(null),
-                    );
-                }
-
-                /* ── New game / Restart ── */
-                initNew() {
-                    this.board = this.emptyBoard();
-                    this.score = 0;
-                    this.won = false;
-                    this.over = false;
-                    this.keepPlaying = false;
-                    this.undoStack = [];
-                    this.tileCounter = 0;
-                    this.moveLock = false;
-                    this.scoreEl.textContent = "0";
-                    this.overOvl.classList.remove("active");
-                    this.winOvl.classList.remove("active");
-                    this.clearTileEls();
-                    this.addRandom();
-                    this.addRandom();
-                    this.fullRender();
-                    this.save();
-                }
-
-                restart() {
-                    this.initNew();
-                }
-
-                continueAfterWin() {
-                    this.keepPlaying = true;
-                    this.winOvl.classList.remove("active");
-                    this.save();
-                }
-
-                /* ── Grid metrics ── */
-                metrics() {
-                    const cw = this.tilesEl.getBoundingClientRect().width;
-                    const gap = cw > 300 ? 8 : 6;
-                    const sz = (cw - gap * (this.size - 1)) / this.size;
-                    return { gap, sz };
-                }
-
-                cellPos(r, c) {
-                    const { gap, sz } = this.metrics();
-                    return { top: r * (sz + gap), left: c * (sz + gap), sz };
-                }
-
-                fontSize(val, sz) {
-                    if (val >= 1024) return sz * 0.28;
-                    if (val >= 128) return sz * 0.35;
-                    return sz * 0.42;
-                }
-
-                tileClassName(v) {
-                    return v <= 2048 ? `tile-${v}` : "tile-super";
-                }
-
-                /* ── DOM tile helpers ── */
-                createTileEl(tile, r, c, anim) {
-                    const { top, left, sz } = this.cellPos(r, c);
-                    const el = document.createElement("div");
-                    el.className = `tile ${this.tileClassName(tile.value)}`;
-                    if (anim) el.classList.add(anim);
-                    el.style.cssText = `width:${sz}px;height:${sz}px;top:${top}px;left:${left}px;font-size:${this.fontSize(tile.value, sz)}px;line-height:${sz}px;`;
-                    el.textContent = tile.value;
-                    this.tilesEl.appendChild(el);
-                    this.tileEls[tile.id] = el;
-                    return el;
-                }
-
-                slideTileEl(id, r, c) {
-                    const el = this.tileEls[id];
-                    if (!el) return;
-                    const { top, left } = this.cellPos(r, c);
-                    el.style.top = `${top}px`;
-                    el.style.left = `${left}px`;
-                }
-
-                removeTileEl(id) {
-                    const el = this.tileEls[id];
-                    if (el) {
-                        el.remove();
-                        delete this.tileEls[id];
-                    }
-                }
-
-                clearTileEls() {
-                    Object.keys(this.tileEls).forEach((id) =>
-                        this.removeTileEl(id),
-                    );
-                    this.tilesEl.innerHTML = "";
-                }
-
-                fullRender() {
-                    this.clearTileEls();
-                    for (let r = 0; r < this.size; r++)
-                        for (let c = 0; c < this.size; c++) {
-                            const cell = this.board[r][c];
-                            if (cell) this.createTileEl(cell, r, c, null);
-                        }
-                }
-
-                /* ── Random tile ── */
-                emptyCells() {
-                    const cells = [];
-                    for (let r = 0; r < this.size; r++)
-                        for (let c = 0; c < this.size; c++)
-                            if (!this.board[r][c]) cells.push({ r, c });
-                    return cells;
-                }
-
-                addRandom() {
-                    const empty = this.emptyCells();
-                    if (!empty.length) return null;
-                    const { r, c } =
-                        empty[Math.floor(Math.random() * empty.length)];
-                    const tile = {
-                        value: Math.random() < 0.9 ? 2 : 4,
-                        id: ++this.tileCounter,
-                    };
-                    this.board[r][c] = tile;
-                    return { tile, r, c };
-                }
-
-                /* ── Core move with animation tracking ── */
-                move(dir) {
-                    if (this.over || (this.won && !this.keepPlaying)) return;
-                    if (this.moveLock) return;
-
-                    const v = {
-                        up: { dr: -1, dc: 0 },
-                        down: { dr: 1, dc: 0 },
-                        left: { dr: 0, dc: -1 },
-                        right: { dr: 0, dc: 1 },
-                    }[dir];
-                    if (!v) return;
-
-                    // Undo snapshot
-                    const snap = {
-                        board: this.board.map((r) =>
-                            r.map((c) => (c ? { ...c } : null)),
-                        ),
-                        score: this.score,
-                    };
-
-                    const slides = []; // { id, toR, toC }
-                    const merges = []; // { id1, id2, newTile, r, c, pts }
-                    let moved = false;
-                    const mergedSet = new Set();
-
-                    const rows = [...Array(this.size).keys()];
-                    const cols = [...Array(this.size).keys()];
-                    if (v.dr === 1) rows.reverse();
-                    if (v.dc === 1) cols.reverse();
-
-                    for (const r of rows) {
-                        for (const c of cols) {
-                            const cell = this.board[r][c];
-                            if (!cell) continue;
-
-                            let nr = r,
-                                nc = c,
-                                target = null;
-                            while (true) {
-                                const tr = nr + v.dr,
-                                    tc = nc + v.dc;
-                                if (
-                                    tr < 0 ||
-                                    tr >= this.size ||
-                                    tc < 0 ||
-                                    tc >= this.size
-                                )
-                                    break;
-                                if (this.board[tr][tc]) {
-                                    if (
-                                        this.board[tr][tc].value ===
-                                            cell.value &&
-                                        !mergedSet.has(`${tr},${tc}`)
-                                    )
-                                        target = { r: tr, c: tc };
-                                    break;
-                                }
-                                nr = tr;
-                                nc = tc;
-                            }
-
-                            if (target) {
-                                const tgt = this.board[target.r][target.c];
-                                const nv = cell.value * 2;
-                                const nt = {
-                                    value: nv,
-                                    id: ++this.tileCounter,
-                                };
-                                slides.push({
-                                    id: cell.id,
-                                    toR: target.r,
-                                    toC: target.c,
-                                });
-                                merges.push({
-                                    id1: cell.id,
-                                    id2: tgt.id,
-                                    newTile: nt,
-                                    r: target.r,
-                                    c: target.c,
-                                    pts: nv,
-                                });
-                                this.board[target.r][target.c] = nt;
-                                this.board[r][c] = null;
-                                this.score += nv;
-                                mergedSet.add(`${target.r},${target.c}`);
-                                moved = true;
-                                if (
-                                    nv === 2048 &&
-                                    !this.won &&
-                                    !this.keepPlaying
-                                )
-                                    this.won = true;
-                            } else if (nr !== r || nc !== c) {
-                                slides.push({ id: cell.id, toR: nr, toC: nc });
-                                this.board[nr][nc] = cell;
-                                this.board[r][c] = null;
-                                moved = true;
-                            }
-                        }
-                    }
-
-                    if (!moved) return;
-
-                    this.moveLock = true;
-                    this.undoStack.push(snap);
-                    if (this.undoStack.length > this.maxUndo)
-                        this.undoStack.shift();
-
-                    // Phase 1: slide all tiles to new positions (CSS transition)
-                    slides.forEach((s) => this.slideTileEl(s.id, s.toR, s.toC));
-
-                    // Phase 2: after slide completes, handle merges + new tile
-                    setTimeout(() => {
-                        merges.forEach((m) => {
-                            this.removeTileEl(m.id1);
-                            this.removeTileEl(m.id2);
-                            this.createTileEl(
-                                m.newTile,
-                                m.r,
-                                m.c,
-                                "tile-merged",
-                            );
-                            this.showMergePopup(m.r, m.c, m.pts);
-                        });
-
-                        const fresh = this.addRandom();
-                        if (fresh)
-                            this.createTileEl(
-                                fresh.tile,
-                                fresh.r,
-                                fresh.c,
-                                "tile-new",
-                            );
-
-                        this.updateScore();
-                        this.save();
-
-                        if (this.won && !this.keepPlaying) {
-                            this.winOvl.classList.add("active");
-                            this.winOvl.querySelector(".game-btn")?.focus();
-                        }
-                        if (!this.canMove()) {
-                            this.over = true;
-                            document.getElementById("finalScore").textContent =
-                                this.score;
-                            this.overOvl.classList.add("active");
-                            this.overOvl.querySelector(".game-btn")?.focus();
-                        }
-
-                        this.moveLock = false;
-                    }, 130);
-                }
-
-                /* ── Merge score popup ── */
-                showMergePopup(r, c, pts) {
-                    const { top, left, sz } = this.cellPos(r, c);
-                    const el = document.createElement("div");
-                    el.className = "merge-popup";
-                    el.textContent = `+${pts}`;
-                    el.style.cssText = `top:${top}px;left:${left}px;width:${sz}px;`;
-                    this.tilesEl.appendChild(el);
-                    el.addEventListener("animationend", () => el.remove());
-                }
-
-                /* ── Undo (multi-level) ── */
-                undo() {
-                    if (!this.undoStack.length) return;
-                    const s = this.undoStack.pop();
-                    this.board = s.board;
-                    this.score = s.score;
-                    this.won = false;
-                    this.over = false;
-                    this.overOvl.classList.remove("active");
-                    this.winOvl.classList.remove("active");
-                    this.updateScore();
-                    this.fullRender();
-                    this.save();
-                }
-
-                /* ── Move availability ── */
-                canMove() {
-                    if (this.emptyCells().length > 0) return true;
-                    for (let r = 0; r < this.size; r++)
-                        for (let c = 0; c < this.size; c++) {
-                            const v = this.board[r][c]?.value;
-                            if (!v) continue;
-                            if (
-                                r < this.size - 1 &&
-                                this.board[r + 1][c]?.value === v
-                            )
-                                return true;
-                            if (
-                                c < this.size - 1 &&
-                                this.board[r][c + 1]?.value === v
-                            )
-                                return true;
-                        }
-                    return false;
-                }
-
-                /* ── Score ── */
-                updateScore() {
-                    this.scoreEl.textContent = this.score;
-                    if (this.score > this.bestScore) {
-                        this.bestScore = this.score;
-                        this.bestEl.textContent = this.bestScore;
-                        localStorage.setItem("best2048", this.bestScore);
-                    }
-                }
-
-                /* ── Persistence ── */
-                save() {
-                    const data = {
-                        board: this.board.map((r) =>
-                            r.map((c) =>
-                                c ? { value: c.value, id: c.id } : null,
-                            ),
-                        ),
-                        score: this.score,
-                        won: this.won,
-                        over: this.over,
-                        keepPlaying: this.keepPlaying,
-                        tc: this.tileCounter,
-                    };
-                    localStorage.setItem("game2048State", JSON.stringify(data));
-                }
-
-                loadState() {
-                    try {
-                        const d = JSON.parse(
-                            localStorage.getItem("game2048State"),
-                        );
-                        if (!d?.board) return false;
-                        this.board = d.board.map((r) =>
-                            r.map((c) =>
-                                c ? { value: c.value, id: c.id } : null,
-                            ),
-                        );
-                        this.score = d.score || 0;
-                        this.won = d.won || false;
-                        this.over = d.over || false;
-                        this.keepPlaying = d.keepPlaying || false;
-                        this.tileCounter = d.tc || 0;
-                        this.undoStack = [];
-                        this.moveLock = false;
-                        this.scoreEl.textContent = this.score;
-                        this.overOvl.classList.toggle("active", this.over);
-                        this.winOvl.classList.toggle(
-                            "active",
-                            this.won && !this.keepPlaying,
-                        );
-                        this.fullRender();
-                        return true;
-                    } catch {
-                        return false;
-                    }
-                }
-
-                /* ── Input ── */
-                setupInput() {
-                    // Keyboard
-                    document.addEventListener("keydown", (e) => {
-                        const map = {
-                            ArrowUp: "up",
-                            ArrowDown: "down",
-                            ArrowLeft: "left",
-                            ArrowRight: "right",
-                            w: "up",
-                            W: "up",
-                            s: "down",
-                            S: "down",
-                            a: "left",
-                            A: "left",
-                            d: "right",
-                            D: "right",
-                        };
-                        const d = map[e.key];
-                        if (d) {
-                            e.preventDefault();
-                            this.move(d);
-                        }
-                    });
-
-                    // Board swipe (touch)
-                    const board = this.boardEl;
-                    let tx = null,
-                        ty = null,
-                        touching = false;
-
-                    board.addEventListener(
-                        "touchstart",
-                        (e) => {
-                            if (e.touches.length !== 1) return;
-                            tx = e.touches[0].clientX;
-                            ty = e.touches[0].clientY;
-                            touching = true;
-                        },
-                        { passive: false },
-                    );
-
-                    board.addEventListener(
-                        "touchmove",
-                        (e) => {
-                            if (touching) e.preventDefault();
-                        },
-                        { passive: false },
-                    );
-
-                    board.addEventListener(
-                        "touchend",
-                        (e) => {
-                            if (!touching || tx === null) return;
-                            touching = false;
-                            const dx = e.changedTouches[0].clientX - tx;
-                            const dy = e.changedTouches[0].clientY - ty;
-                            tx = ty = null;
-                            if (Math.max(Math.abs(dx), Math.abs(dy)) < 20)
-                                return;
-                            this.move(
-                                Math.abs(dx) > Math.abs(dy)
-                                    ? dx > 0
-                                        ? "right"
-                                        : "left"
-                                    : dy > 0
-                                      ? "down"
-                                      : "up",
-                            );
-                        },
-                        { passive: false },
-                    );
-
-                    board.addEventListener(
-                        "touchcancel",
-                        () => {
-                            touching = false;
-                            tx = ty = null;
-                        },
-                        { passive: true },
-                    );
-
-                    // Mouse drag
-                    let md = false,
-                        mx,
-                        my;
-                    board.addEventListener("mousedown", (e) => {
-                        md = true;
-                        mx = e.clientX;
-                        my = e.clientY;
-                        e.preventDefault();
-                    });
-                    addEventListener("mouseup", (e) => {
-                        if (!md) return;
-                        md = false;
-                        const dx = e.clientX - mx,
-                            dy = e.clientY - my;
-                        if (Math.max(Math.abs(dx), Math.abs(dy)) < 20) return;
-                        this.move(
-                            Math.abs(dx) > Math.abs(dy)
-                                ? dx > 0
-                                    ? "right"
-                                    : "left"
-                                : dy > 0
-                                  ? "down"
-                                  : "up",
-                        );
-                    });
-
-                    // D-Pad: show on touch devices, prevent double-fire
-                    if (
-                        "ontouchstart" in window ||
-                        navigator.maxTouchPoints > 0
-                    ) {
-                        document
-                            .getElementById("mobileControls")
-                            ?.classList.add("visible");
-                    }
-                    document
-                        .querySelectorAll(".dpad-btn[data-dir]")
-                        .forEach((btn) => {
-                            let handled = false;
-                            btn.addEventListener(
-                                "touchstart",
-                                (e) => {
-                                    e.preventDefault();
-                                    if (!handled) {
-                                        handled = true;
-                                        this.move(btn.dataset.dir);
-                                        setTimeout(
-                                            () => (handled = false),
-                                            200,
-                                        );
-                                    }
-                                },
-                                { passive: false },
-                            );
-                            btn.addEventListener("click", () => {
-                                if (!handled) this.move(btn.dataset.dir);
-                            });
-                        });
-
-                    // Resize re-render
-                    let rt;
-                    addEventListener("resize", () => {
-                        clearTimeout(rt);
-                        rt = setTimeout(() => this.fullRender(), 80);
-                    });
-                }
-            }
-
-            const game = new Game2048();
-
-            /* ═══════════════════════════════════════════════
-           COUNTDOWN (fixed target date: 1 September 2026)
-           ═══════════════════════════════════════════════ */
-            (() => {
-                const target = new Date("2026-09-01T00:00:00");
-                const titleEl = document.getElementById("countdown-title");
-                const subEl = document.getElementById("countdown-subtitle");
-
-                function tick() {
-                    const diff = target - new Date();
-
-                    if (diff <= 0) {
-                        titleEl.textContent = "🚀 Premiera!";
-                        subEl.textContent = "Strona jest już (prawie) gotowa!";
-                        document.getElementById("countdown-days").textContent =
-                            "🎉";
-                        document.getElementById("countdown-hours").textContent =
-                            "00";
-                        document.getElementById(
-                            "countdown-minutes",
-                        ).textContent = "00";
-                        document.getElementById(
-                            "countdown-seconds",
-                        ).textContent = "00";
-                        return;
-                    }
-
-                    const d = Math.floor(diff / 864e5);
-                    const h = Math.floor((diff % 864e5) / 36e5);
-                    const m = Math.floor((diff % 36e5) / 6e4);
-                    const s = Math.floor((diff % 6e4) / 1000);
-
-                    document.getElementById("countdown-days").textContent =
-                        String(d).padStart(2, "0");
-                    document.getElementById("countdown-hours").textContent =
-                        String(h).padStart(2, "0");
-                    document.getElementById("countdown-minutes").textContent =
-                        String(m).padStart(2, "0");
-                    document.getElementById("countdown-seconds").textContent =
-                        String(s).padStart(2, "0");
-                }
-                tick();
-                setInterval(tick, 1000);
             })();
 
             /* ═══════════════════════════════════════════════
