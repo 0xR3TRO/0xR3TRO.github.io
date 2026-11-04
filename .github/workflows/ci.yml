@@ -1,10 +1,10 @@
-# Checks run on every pull request and on pushes to main.
+# Checks run on every pull request and on pushes to main and develop.
 name: CI
 
 on:
   pull_request:
   push:
-    branches: ["main"]
+    branches: ["main", "develop"]
 
 permissions:
   contents: read

@@ -4,11 +4,10 @@
 
 ## Typ zmiany
 
-- [ ] `feat` — nowa funkcja lub sekcja
-- [ ] `fix` — poprawka błędu
-- [ ] `content` — tekst, linki, tłumaczenia
-- [ ] `docs` — dokumentacja
-- [ ] `chore` — narzędzia, CI, zależności
+- [ ] `feature/*` — nowa funkcja, sekcja, treść lub dokumentacja (PR do `develop`)
+- [ ] `bugfix/*` — poprawka błędu (PR do `develop`)
+- [ ] `hotfix/*` — pilna poprawka produkcji (PR do `main`)
+- [ ] wydanie `develop` → `main`
 
 ## Sprawdzone
 

@@ -1,36 +1,35 @@
 # Jak pracować z repozytorium
 
-Strona jest statyczna (HTML, CSS, JS bez bundlera). `main` to produkcja: każdy push na `main` wdraża stronę na klefas.me.
+Strona jest statyczna (HTML, CSS, JS bez bundlera). Gałąź `main` to produkcja: każdy push na `main` wdraża stronę na klefas.me.
 
-## Model gałęzi
+## Gałęzie
 
-Używamy GitHub Flow: jedna długo żyjąca gałąź `main` i krótkie gałęzie robocze, każda na jedno zadanie.
+| Gałąź        | Rola                                     | Tworzona z | Wraca do                  |
+| ------------ | ---------------------------------------- | ---------- | ------------------------- |
+| `main`       | produkcja, tylko stabilny kod            | —          | —                         |
+| `develop`    | integracja kolejnych zmian (opcjonalna)  | `main`     | `main` (wydanie)          |
+| `feature/*`  | nowa funkcja, sekcja lub treść           | `develop`  | `develop`                 |
+| `bugfix/*`   | poprawka błędu znalezionego w `develop`  | `develop`  | `develop`                 |
+| `hotfix/*`   | pilna poprawka błędu na produkcji        | `main`     | `main`, potem do `develop`|
 
-| Prefiks    | Do czego                         | Przykład                  |
-| ---------- | -------------------------------- | ------------------------- |
-| `feat/`    | nowa funkcja lub sekcja          | `feat/about-section`      |
-| `fix/`     | poprawka błędu                   | `fix/mobile-mail-link`    |
-| `content/` | teksty, linki, tłumaczenia       | `content/en-translation`  |
-| `docs/`    | dokumentacja                     | `docs/readme`             |
-| `chore/`   | CI, narzędzia, zależności        | `chore/ci-validation`     |
+Nazwa gałęzi: `rodzaj/krotki-opis` małymi literami, słowa łączone myślnikiem, najlepiej 2–3 słowa (`feature/about-section`, `bugfix/mail-link`, `hotfix/broken-redirect`). Bez imion, dat i nazw generowanych automatycznie.
 
-Nazwa gałęzi: `prefiks/krotki-opis` małymi literami, słowa łączone myślnikiem, najlepiej 2–3 słowa (`feat/about`, `fix/mail-link`). Bez nazw generowanych automatycznie, bez imion i dat.
+## Przebieg pracy
 
-Zasady:
+1. `feature/*` i `bugfix/*`: odgałęzienie od `develop`, pull request do `develop`, **Squash and merge**, usunięcie gałęzi.
+2. Wydanie: pull request `develop` → `main`, scalany zwykłym **merge commit** (bez squasha, żeby historia obu gałęzi się nie rozjeżdżała). Po scaleniu strona wdraża się sama.
+3. `hotfix/*`: odgałęzienie od `main`, pull request do `main` (merge commit), a następnie scalenie `main` z powrotem do `develop`.
+4. Nie commitujemy bezpośrednio do `main` ani do `develop`. CI (`CI / validate`) musi przejść przed scaleniem.
 
-1. Nie commitujemy bezpośrednio do `main`. Każda zmiana idzie przez pull request.
-2. PR jest mały i dotyczy jednego tematu. Tytuł w stylu `feat: dodaj sekcję "O mnie"`.
-3. CI (`CI / validate`) musi przejść przed scaleniem.
-4. Scalamy przez **Squash and merge**, a gałąź robocza jest usuwana po scaleniu.
-5. Po scaleniu `main` wdraża się sam (workflow `static.yml`).
+Jeśli `develop` okaże się zbędna, wystarczy ją usunąć: `feature/*` i `bugfix/*` będą wtedy wychodzić z `main` i wracać do `main`.
 
 ## Ustawienia GitHuba do włączenia ręcznie
 
 Tego nie da się zapisać w repozytorium. Trzeba to ustawić w **Settings**:
 
-- **Branches → Add rule** dla `main`: wymagaj pull requesta oraz sprawdzenia `validate`.
-- **General → Pull Requests**: zostaw tylko "Allow squash merging" i włącz "Automatically delete head branches".
-- **Pages**: źródło ustaw na "GitHub Actions".
+- **Branches → Add rule** dla `main` i `develop`: wymagaj pull requesta oraz sprawdzenia `validate`.
+- **General → Pull Requests**: zostaw squash i merge commit, włącz "Automatically delete head branches".
+- **Pages**: źródło ustaw na "GitHub Actions". Domyślna gałąź zostaje `main`, więc nowy PR trzeba kierować na `develop` ręcznie.
 
 ## Lokalna walidacja
 
