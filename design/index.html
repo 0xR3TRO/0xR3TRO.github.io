@@ -1,0 +1,531 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="robots" content="noindex" />
+        <title>klefas.me design explorer</title>
+        <link rel="stylesheet" href="../fonts/fonts.css" />
+        <style>
+            /* ═════════ Explorer chrome (neutral, not part of any design system) ═════════ */
+            :root {
+                --x-bg: #14141a;
+                --x-fg: #e9e9ef;
+                --x-muted: #9a9aae;
+                --x-border: #2b2b36;
+                --x-accent: #8b85ff;
+            }
+            * { box-sizing: border-box; margin: 0; padding: 0; }
+            html { scroll-behavior: smooth; }
+            body { font-family: Inter, system-ui, sans-serif; background: var(--x-bg); color: var(--x-fg); }
+            .xbar {
+                position: sticky; top: 0; z-index: 50; display: flex; flex-wrap: wrap; gap: 8px 20px;
+                align-items: center; padding: 10px 16px; background: var(--x-bg); border-bottom: 1px solid var(--x-border);
+                font-size: 13px;
+            }
+            .xgroup { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+            .xlabel { color: var(--x-muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; margin-right: 2px; }
+            .xbtn {
+                font: inherit; color: var(--x-fg); background: transparent; border: 1px solid var(--x-border);
+                border-radius: 8px; padding: 6px 10px; cursor: pointer;
+            }
+            .xbtn:hover { border-color: var(--x-accent); }
+            .xbtn[aria-pressed="true"] { background: var(--x-accent); border-color: var(--x-accent); color: #0b0b12; font-weight: 600; }
+            .xbtn:focus-visible, .stage :focus-visible { outline: 2px solid var(--x-accent); outline-offset: 2px; }
+            .xhint { color: var(--x-muted); font-size: 12px; margin-left: auto; }
+
+            /* ═════════ Design system tokens ═════════ */
+            .stage { min-height: calc(100vh - 54px); background: var(--bg); color: var(--fg); font-family: var(--font-body); line-height: 1.6; }
+            .stage.ready { transition: background 0.3s, color 0.3s; }
+
+            /* A - Retro Terminal */
+            .stage[data-ds="a"][data-mode="dark"] {
+                --bg: #0a0f0b; --surface: #101812; --surface2: #16221a; --fg: #d4f2d8; --muted: #86a58b;
+                --accent: #3dff8a; --on-accent: #04120a; --accent2: #ffb000; --border: #21402a;
+            }
+            .stage[data-ds="a"][data-mode="light"] {
+                --bg: #eff2e2; --surface: #f8faee; --surface2: #e4e9d2; --fg: #12301a; --muted: #4f6b55;
+                --accent: #0b7a35; --on-accent: #f4fbe8; --accent2: #9a5b00; --border: #b6c3a4;
+            }
+            .stage[data-ds="a"] {
+                --radius: 2px; --radius-sm: 2px; --font-display: "JetBrains Mono", monospace; --font-body: "JetBrains Mono", monospace;
+                --font-mono: "JetBrains Mono", monospace; --h-weight: 700; --h-track: -0.02em; --body-size: 14px; --shadow: none;
+            }
+            /* B - Soft Modern */
+            .stage[data-ds="b"][data-mode="dark"] {
+                --bg: #0a0a0f; --surface: #1a1a2e; --surface2: #222240; --fg: #e8e8f0; --muted: #9a9ab2;
+                --accent: #7a72ff; --on-accent: #ffffff; --accent2: #ff6b9d; --border: rgba(255, 255, 255, 0.09);
+            }
+            .stage[data-ds="b"][data-mode="light"] {
+                --bg: #f0f0f5; --surface: #ffffff; --surface2: #f5f5ff; --fg: #1a1a2e; --muted: #5f5f78;
+                --accent: #5a50f0; --on-accent: #ffffff; --accent2: #d6336c; --border: rgba(0, 0, 0, 0.09);
+            }
+            .stage[data-ds="b"] {
+                --radius: 16px; --radius-sm: 10px; --font-display: Inter, system-ui, sans-serif; --font-body: Inter, system-ui, sans-serif;
+                --font-mono: "JetBrains Mono", monospace; --h-weight: 800; --h-track: -0.04em; --body-size: 16px;
+                --shadow: 0 8px 30px rgba(0, 0, 0, 0.18);
+            }
+            /* C - Editorial */
+            .stage[data-ds="c"][data-mode="light"] {
+                --bg: #f6f1e7; --surface: #fffdf8; --surface2: #efe8d8; --fg: #1d1b18; --muted: #675f52;
+                --accent: #b53a0a; --on-accent: #fffdf8; --accent2: #1e3a8a; --border: #d8cfbb;
+            }
+            .stage[data-ds="c"][data-mode="dark"] {
+                --bg: #15120e; --surface: #1d1a15; --surface2: #26211a; --fg: #efe8da; --muted: #a89f8c;
+                --accent: #fb9b52; --on-accent: #15120e; --accent2: #93b4ff; --border: #3a342a;
+            }
+            .stage[data-ds="c"] {
+                --radius: 0; --radius-sm: 0; --font-display: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+                --font-body: Inter, system-ui, sans-serif; --font-mono: "JetBrains Mono", monospace; --h-weight: 600;
+                --h-track: -0.02em; --body-size: 16px; --shadow: none;
+            }
+
+            /* ═════════ Shared components (driven by tokens) ═════════ */
+            .stage { font-size: var(--body-size); }
+            .stage a { color: inherit; }
+            .wrap { max-width: 1040px; margin: 0 auto; padding: 0 24px; }
+            .eyebrow { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); }
+            .display { font-family: var(--font-display); font-weight: var(--h-weight); letter-spacing: var(--h-track); line-height: 1.05; font-size: clamp(2.2rem, 6vw, 4rem); }
+            .h2 { font-family: var(--font-display); font-weight: var(--h-weight); letter-spacing: var(--h-track); font-size: 1.6rem; line-height: 1.2; margin-bottom: 12px; }
+            .lead { color: var(--muted); font-size: 1.1em; max-width: 56ch; }
+            .muted { color: var(--muted); }
+            .mono { font-family: var(--font-mono); }
+            .section { padding: 48px 0; }
+            .ph { outline: 1px dashed var(--accent2); outline-offset: 3px; }
+
+            .btn {
+                font: inherit; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; text-decoration: none;
+                padding: 11px 20px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--surface); color: var(--fg);
+                transition: transform 0.15s, border-color 0.15s, background 0.15s;
+            }
+            .btn:hover { border-color: var(--accent); transform: translateY(-2px); }
+            .btn-primary { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+            .stage[data-ds="b"] .btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent2)); border-color: transparent; box-shadow: var(--shadow); }
+            .stage[data-ds="a"] .btn { text-transform: lowercase; }
+            .stage[data-ds="a"] .btn::before { content: "["; color: var(--accent); }
+            .stage[data-ds="a"] .btn::after { content: "]"; color: var(--accent); }
+            .stage[data-ds="a"] .btn-primary::before, .stage[data-ds="a"] .btn-primary::after { color: var(--on-accent); }
+            .stage[data-ds="c"] .btn { border-width: 1.5px; border-color: var(--fg); }
+            .stage[data-ds="c"] .btn-primary { border-color: var(--accent); }
+            .stage[data-ds="c"] .btn:hover { transform: none; background: var(--fg); color: var(--bg); border-color: var(--fg); }
+            .stage[data-ds="c"] .btn-primary:hover { background: var(--fg); }
+
+            .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 22px; box-shadow: var(--shadow); transition: transform 0.2s, border-color 0.2s; }
+            a.card, .card.hoverable { text-decoration: none; display: block; }
+            a.card:hover, .card.hoverable:hover { border-color: var(--accent); transform: translateY(-3px); }
+            .stage[data-ds="a"] .card { position: relative; }
+            .stage[data-ds="a"] .card::before { content: ""; position: absolute; top: -1px; left: -1px; width: 10px; height: 10px; border-top: 2px solid var(--accent); border-left: 2px solid var(--accent); }
+            .stage[data-ds="c"] .card { background: transparent; border: none; border-top: 2px solid var(--fg); padding: 16px 0 0; }
+            .stage[data-ds="c"] a.card:hover, .stage[data-ds="c"] .card.hoverable:hover { transform: none; border-top-color: var(--accent); }
+
+            .chip { display: inline-block; padding: 5px 12px; border: 1px solid var(--border); border-radius: calc(var(--radius) * 6); background: var(--surface); font-family: var(--font-mono); font-size: 12.5px; }
+            .stage[data-ds="a"] .chip, .stage[data-ds="c"] .chip { border-radius: var(--radius); }
+            button.chip { cursor: pointer; color: var(--fg); }
+            button.chip[aria-pressed="true"] { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+            .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+            .grad { background: linear-gradient(135deg, var(--accent), var(--accent2)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+            .stage[data-ds="a"] .grad { background: none; color: var(--accent); }
+            .stage[data-ds="c"] .grad { background: none; color: var(--accent); font-style: italic; }
+            .stage[data-ds="a"] .display::before { content: "> "; color: var(--accent); }
+            .avatar { width: 72px; height: 72px; display: grid; place-items: center; font-family: var(--font-display); font-weight: 800; font-size: 28px; border-radius: calc(var(--radius) * 0.7); background: linear-gradient(135deg, var(--accent), var(--accent2)); color: var(--on-accent); }
+            .stage[data-ds="a"] .avatar, .stage[data-ds="c"] .avatar { background: var(--accent); }
+            .pbadge { display: inline-flex; gap: 8px; align-items: center; font-family: var(--font-mono); font-size: 12px; padding: 6px 12px; border: 1px solid var(--border); border-radius: calc(var(--radius) * 6); background: var(--surface); }
+            .stage[data-ds="a"] .pbadge, .stage[data-ds="c"] .pbadge { border-radius: var(--radius); }
+            .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+            .row { display: flex; flex-wrap: wrap; gap: 12px; }
+
+            /* top nav shared by layouts 1, 3, 4 */
+            .topnav { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 0; border-bottom: 1px solid var(--border); position: relative; flex-wrap: wrap; }
+            .brand { display: flex; align-items: center; gap: 10px; font-family: var(--font-display); font-weight: 800; background: none; border: none; color: inherit; font-size: 1.05rem; cursor: pointer; }
+            .brand .avatar { width: 34px; height: 34px; font-size: 15px; }
+            .navlinks { display: flex; gap: 6px; flex-wrap: wrap; }
+            .navlink { font: inherit; font-size: 0.92em; color: var(--muted); background: none; border: none; padding: 8px 12px; cursor: pointer; border-radius: var(--radius-sm); }
+            .navlink:hover, .navlink[aria-current="page"] { color: var(--fg); }
+            .navlink[aria-current="page"] { text-decoration: underline; text-underline-offset: 6px; text-decoration-color: var(--accent); }
+            .footer { padding: 32px 0 48px; color: var(--muted); font-size: 0.85em; border-top: 1px solid var(--border); margin-top: 24px; }
+
+            /* L1 centered */
+            .herotext { display: grid; gap: 18px; justify-items: start; }
+            .l1 .herotext { justify-items: center; }
+            .l1 .hero { text-align: center; padding: 72px 0 40px; display: grid; justify-items: center; gap: 20px; }
+            .l1 .hero .lead { margin: 0 auto; }
+            .l1 .center { text-align: center; }
+            .l1 .center .chips, .l1 .center .row { justify-content: center; }
+            .l1 .about { max-width: 62ch; margin: 0 auto; text-align: center; }
+
+            /* L2 split */
+            .l2 { display: grid; grid-template-columns: 320px 1fr; min-height: calc(100vh - 54px); }
+            .l2 aside { position: sticky; top: 54px; align-self: start; height: calc(100vh - 54px); padding: 40px 28px; border-right: 1px solid var(--border); display: flex; flex-direction: column; gap: 20px; background: var(--surface); overflow: auto; }
+            .l2 aside .display { font-size: 2.2rem; }
+            .l2 .sidenav { display: grid; gap: 2px; margin-top: 8px; }
+            .l2 .sidenav .navlink { text-align: left; padding: 10px 12px; }
+            .l2 main { padding: 48px clamp(20px, 5vw, 64px); max-width: 880px; }
+            .l2 .section:first-child { padding-top: 0; }
+
+            /* L3 bento */
+            .bento { display: grid; grid-template-columns: repeat(6, 1fr); gap: 16px; padding: 32px 0; }
+            .bento .t1 { grid-column: span 4; grid-row: span 2; display: flex; flex-direction: column; justify-content: space-between; gap: 24px; min-height: 280px; }
+            .bento .t2 { grid-column: span 2; }
+            .bento .t3 { grid-column: span 3; }
+            .bento .t4 { grid-column: span 6; background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 22%, var(--surface)), var(--surface)); }
+            .stage[data-ds="c"] .bento .t4 { background: transparent; }
+            .bento .t4.plain { background: var(--surface); }
+            .stage[data-ds="c"] .bento .t4.plain { background: transparent; }
+            .bento .t5 { grid-column: span 3; }
+
+            /* L4 timeline */
+            .l4 .hero { padding: 64px 0 24px; display: grid; gap: 18px; max-width: 760px; }
+            .timeline { position: relative; margin: 16px 0 8px; padding-left: 28px; border-left: 2px solid var(--border); display: grid; gap: 28px; }
+            .tl-item { position: relative; }
+            .tl-item::before { content: ""; position: absolute; left: -37px; top: 6px; width: 14px; height: 14px; border-radius: 50%; background: var(--bg); border: 3px solid var(--accent); }
+            .stage[data-ds="a"] .tl-item::before, .stage[data-ds="c"] .tl-item::before { border-radius: 0; }
+            .tl-item button.tl-head { font: inherit; text-align: left; color: inherit; background: none; border: none; cursor: pointer; padding: 0; width: 100%; }
+            .tl-year { font-family: var(--font-mono); font-size: 12px; color: var(--accent); letter-spacing: 0.08em; }
+            .tl-title { font-family: var(--font-display); font-weight: var(--h-weight); font-size: 1.2rem; }
+            .tl-body { color: var(--muted); margin-top: 6px; max-width: 60ch; }
+
+            /* L5 terminal */
+            .l5 { padding: 24px 16px 48px; }
+            .term { max-width: 860px; margin: 0 auto; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); box-shadow: var(--shadow); overflow: hidden; }
+            .term-bar { display: flex; gap: 8px; align-items: center; padding: 10px 14px; border-bottom: 1px solid var(--border); background: var(--surface2); font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
+            .term-bar i { width: 10px; height: 10px; border-radius: 50%; background: var(--border); display: inline-block; }
+            .term-body { padding: 18px 18px 8px; font-family: var(--font-mono); font-size: 14px; min-height: 420px; }
+            .term-line { white-space: pre-wrap; margin-bottom: 4px; }
+            .term-cmd { color: var(--accent); }
+            .term-out { margin: 2px 0 14px; color: var(--fg); }
+            .term-input { display: flex; gap: 8px; align-items: center; padding-bottom: 14px; }
+            .term-input input { flex: 1; font: inherit; color: var(--fg); background: transparent; border: none; outline: none; }
+            .term-shortcuts { display: flex; flex-wrap: wrap; gap: 8px; padding: 12px 18px 18px; border-top: 1px solid var(--border); }
+
+            /* developer area */
+            .work-head { padding: 48px 0 16px; display: grid; gap: 14px; }
+            .filters { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0 20px; }
+            .proj-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+            .proj { display: flex; flex-direction: column; gap: 12px; }
+            .proj h3 { font-family: var(--font-display); font-weight: var(--h-weight); font-size: 1.25rem; letter-spacing: var(--h-track); }
+            .proj .meta { margin-top: auto; }
+            .docs { border-top: 1px dashed var(--border); padding-top: 12px; font-size: 0.92em; color: var(--muted); display: grid; gap: 6px; }
+            .docs b { color: var(--fg); }
+            .docs code { font-family: var(--font-mono); font-size: 0.9em; color: var(--accent); }
+
+            /* design system sheet */
+            .sheet { padding: 40px 0 64px; display: grid; gap: 40px; }
+            .sheet h3 { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); margin-bottom: 14px; }
+            .swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+            .swatch { border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; cursor: pointer; background: var(--surface); text-align: left; font: inherit; color: inherit; padding: 0; }
+            .swatch:hover { border-color: var(--accent); }
+            .swatch .c { height: 56px; border-bottom: 1px solid var(--border); }
+            .swatch .n { padding: 8px 10px; font-family: var(--font-mono); font-size: 11.5px; }
+            .swatch .n b { display: block; font-size: 12.5px; }
+            .type-row { display: grid; grid-template-columns: 110px 1fr; gap: 16px; align-items: baseline; padding: 10px 0; border-bottom: 1px solid var(--border); }
+            .type-row small { font-family: var(--font-mono); color: var(--muted); font-size: 11px; }
+            .field { font: inherit; padding: 10px 14px; border: 1px solid var(--border); background: var(--surface); color: var(--fg); border-radius: var(--radius-sm); width: min(100%, 320px); }
+            .field:focus { outline: 2px solid var(--accent); }
+            .radius-demo { display: flex; gap: 16px; flex-wrap: wrap; }
+            .radius-demo div { width: 88px; height: 56px; border: 1px solid var(--accent); background: var(--surface2); display: grid; place-items: center; font-family: var(--font-mono); font-size: 11px; }
+
+            @media (max-width: 820px) {
+                .l2 { grid-template-columns: 1fr; }
+                .l2 aside { position: static; height: auto; border-right: none; border-bottom: 1px solid var(--border); }
+                .bento .t1, .bento .t2, .bento .t3, .bento .t4, .bento .t5 { grid-column: span 6; }
+                .xhint { display: none; }
+                .type-row { grid-template-columns: 1fr; gap: 4px; }
+            }
+            @media (prefers-reduced-motion: reduce) {
+                * { transition: none !important; scroll-behavior: auto !important; }
+            }
+        </style>
+    </head>
+    <body>
+        <header class="xbar">
+            <div class="xgroup"><span class="xlabel">Design system</span><span id="xDs"></span></div>
+            <div class="xgroup"><span class="xlabel">Layout</span><span id="xLayout"></span></div>
+            <div class="xgroup"><span class="xlabel">View</span><span id="xView"></span></div>
+            <div class="xgroup"><span class="xlabel">Mode</span><span id="xMode"></span></div>
+            <span class="xhint">Placeholder content only. Everything is clickable. State lives in the URL hash.</span>
+        </header>
+        <div class="stage" id="stage"></div>
+
+        <script>
+            /* ═════════ Content (placeholders, clearly marked) ═════════ */
+            const DS = {
+                a: { name: "A / Retro Terminal", short: "A Retro Terminal" },
+                b: { name: "B / Soft Modern", short: "B Soft Modern" },
+                c: { name: "C / Editorial", short: "C Editorial" },
+            };
+            const LAYOUTS = {
+                1: "Centered hero",
+                2: "Split sidebar",
+                3: "Bento grid",
+                4: "Story timeline",
+                5: "Terminal CLI",
+            };
+            const P = {
+                name: "Klefas",
+                role: "Web developer",
+                tagline: "I build small, fast, honest things for the web.",
+                about:
+                    "[Placeholder] A short personal story goes here: where I am from, what drives me, and what I like building. Two or three sentences, written in the first person.",
+                stack: ["HTML", "CSS", "JavaScript", "Git", "[more]"],
+                contacts: [
+                    { label: "Email", href: "mailto:kontakt@klefas.me" },
+                    { label: "GitHub", href: "https://github.com/0xR3TRO" },
+                ],
+                story: [
+                    { year: "2026", title: "klefas.me, rebuilt", text: "[Placeholder] The personal site and the developer area." },
+                    { year: "2025", title: "R3TRO Arcade and Lab", text: "[Placeholder] Browser games and small apps in plain HTML, CSS and JS." },
+                    { year: "[year]", title: "[Role or milestone]", text: "[Placeholder] What happened and what it taught me." },
+                ],
+            };
+            const PROJECTS = [
+                { id: "arcade", cat: "games", name: "R3TRO Arcade", tag: "14 browser games", text: "Puzzles, arcade games and classics. No ads, no trackers.", stack: ["JS", "Canvas"], live: "https://klefas.me/arcade/" },
+                { id: "lab", cat: "tools", name: "R3TRO Lab", tag: "24 small apps", text: "Tools, widgets and UI experiments in plain HTML, CSS and JavaScript.", stack: ["HTML", "CSS", "JS"], live: "https://klefas.me/lab/" },
+                { id: "budgetly", cat: "apps", name: "Budgetly", tag: "Household budget", text: "Expenses, categories, monthly budget and charts. Data stays on your device.", stack: ["JS", "localStorage"], live: "https://klefas.me/budgetly/" },
+            ];
+
+            /* ═════════ State (mirrored into the URL hash) ═════════ */
+            const S = { ds: "b", layout: 1, mode: "dark", view: "home", sheet: false, filter: "all", docs: {}, tl: {}, term: [], termInit: false };
+            function readHash() {
+                const p = new URLSearchParams(location.hash.slice(1));
+                if (DS[p.get("ds")]) S.ds = p.get("ds");
+                if (LAYOUTS[p.get("layout")]) S.layout = +p.get("layout");
+                if (["dark", "light"].includes(p.get("mode"))) S.mode = p.get("mode");
+                if (["home", "work"].includes(p.get("view"))) S.view = p.get("view");
+                S.sheet = p.get("sheet") === "1";
+            }
+            function writeHash() {
+                const p = new URLSearchParams({ ds: S.ds, layout: S.layout, mode: S.mode, view: S.view, sheet: S.sheet ? 1 : 0 });
+                history.replaceState(null, "", "#" + p.toString());
+            }
+            readHash();
+            if (!location.hash) S.mode = matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+
+            const $ = (s) => document.querySelector(s);
+            const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+            const ph = (s) => `<span class="ph">${esc(s)}</span>`;
+
+            /* ═════════ Building blocks ═════════ */
+            const brand = () => `<button class="brand" data-act="home"><span class="avatar" aria-hidden="true">K</span>klefas.me</button>`;
+            const topnav = () => `
+                <nav class="topnav" aria-label="Main">
+                    ${brand()}
+                    <div class="navlinks">
+                        <button class="navlink" data-act="scroll" data-t="about">About</button>
+                        <button class="navlink" data-act="scroll" data-t="stack">Stack</button>
+                        <button class="navlink" data-act="scroll" data-t="contact">Contact</button>
+                        <button class="navlink" data-act="work" ${S.view === "work" ? 'aria-current="page"' : ""}>Developer area</button>
+                    </div>
+                </nav>`;
+            const secAbout = () => `<section class="section about" id="about"><p class="eyebrow">About</p><h2 class="h2">Who I am</h2><p class="lead">${ph(P.about)}</p></section>`;
+            const secStack = () => `<section class="section" id="stack"><p class="eyebrow">Stack</p><h2 class="h2">What I work with</h2><div class="chips">${P.stack.map((s) => `<span class="chip">${esc(s)}</span>`).join("")}</div></section>`;
+            const secContact = () => `<section class="section" id="contact"><p class="eyebrow">Contact</p><h2 class="h2">Say hello</h2><p class="muted" style="margin-bottom:16px">Email is the fastest way.</p><div class="row">${P.contacts.map((c, i) => `<a class="btn ${i === 0 ? "btn-primary" : ""}" href="${c.href}" ${c.href.startsWith("http") ? 'rel="noopener" target="_blank"' : ""}>${c.label}</a>`).join("")}</div></section>`;
+            const devTeaser = () => `
+                <a class="card hoverable" href="#" data-act="work">
+                    <p class="eyebrow">Developer area</p>
+                    <h2 class="h2" style="margin-top:6px">Projects, documentation and live demos</h2>
+                    <p class="muted" style="margin-bottom:14px">Every project explained in detail, with docs and a live version you can open.</p>
+                    <span class="btn btn-primary">Open the developer area</span>
+                </a>`;
+            const footer = () => `<footer class="footer">© 2026 klefas.me · All rights to the content reserved · Site code: MIT</footer>`;
+            const heroText = () => `<div class="herotext">
+                <span class="pbadge"><span class="dot"></span>${esc(P.role)} · open to conversations</span>
+                <h1 class="display">Hi, I'm <span class="grad">${P.name}</span>.</h1>
+                <p class="lead">${esc(P.tagline)}</p></div>`;
+            const heroCta = () => `<div class="row"><button class="btn btn-primary" data-act="work">Developer area</button><button class="btn" data-act="scroll" data-t="contact">Contact</button></div>`;
+
+            /* developer area (shared by all layouts) */
+            function work() {
+                const cats = ["all", "games", "tools", "apps"];
+                const list = PROJECTS.filter((p) => S.filter === "all" || p.cat === S.filter);
+                return `
+                    <div class="work-head">
+                        <p class="eyebrow">Developer area</p>
+                        <h1 class="display" style="font-size:clamp(2rem,5vw,3.2rem)">Work, <span class="grad">documented</span>.</h1>
+                        <p class="lead">Each project has a description, documentation and a live version.</p>
+                        <div class="row"><button class="btn" data-act="home">← Personal site</button></div>
+                    </div>
+                    <div class="filters" role="group" aria-label="Filter projects">
+                        ${cats.map((c) => `<button class="chip" data-act="filter" data-v="${c}" aria-pressed="${S.filter === c}">${c}</button>`).join("")}
+                    </div>
+                    <div class="proj-grid">
+                        ${list.map((p) => `
+                            <article class="card proj">
+                                <span class="eyebrow">${esc(p.tag)}</span>
+                                <h3>${esc(p.name)}</h3>
+                                <p class="muted">${esc(p.text)}</p>
+                                <div class="chips">${p.stack.map((s) => `<span class="chip">${esc(s)}</span>`).join("")}</div>
+                                <div class="row meta">
+                                    <a class="btn btn-primary" href="${p.live}" target="_blank" rel="noopener">Live demo</a>
+                                    <button class="btn" data-act="docs" data-v="${p.id}" aria-expanded="${!!S.docs[p.id]}">Docs</button>
+                                </div>
+                                ${S.docs[p.id] ? `<div class="docs"><div><b>Overview</b> ${ph("[Placeholder] what it is and why it exists")}</div><div><b>Stack</b> ${esc(p.stack.join(", "))}</div><div><b>Run locally</b> <code>git clone … &amp;&amp; open index.html</code></div><div><b>Source</b> ${ph("[link to repository]")}</div></div>` : ""}
+                            </article>`).join("")}
+                    </div>`;
+            }
+
+            /* ═════════ Layouts ═════════ */
+            function layout1() {
+                return `<div class="l1"><div class="wrap">${topnav()}
+                    ${S.view === "work" ? work() : `
+                    <section class="hero">${heroText()}${heroCta()}</section>
+                    ${secAbout()}
+                    <div class="center">${secStack()}</div>
+                    <section class="section">${devTeaser()}</section>
+                    <div class="center">${secContact()}</div>`}
+                    ${footer()}</div></div>`;
+            }
+            function layout2() {
+                return `<div class="l2"><aside>
+                        <span class="avatar" aria-hidden="true">K</span>
+                        <div><h1 class="display">${P.name}</h1><p class="muted" style="margin-top:6px">${esc(P.role)}</p></div>
+                        <p class="muted">${esc(P.tagline)}</p>
+                        <nav class="sidenav" aria-label="Main">
+                            <button class="navlink" data-act="home" ${S.view === "home" ? 'aria-current="page"' : ""}>Personal</button>
+                            <button class="navlink" data-act="work" ${S.view === "work" ? 'aria-current="page"' : ""}>Developer area</button>
+                            <button class="navlink" data-act="scroll" data-t="contact">Contact</button>
+                        </nav>
+                        <div class="row" style="margin-top:auto">${P.contacts.map((c) => `<a class="chip" href="${c.href}">${c.label}</a>`).join("")}</div>
+                    </aside>
+                    <main>${S.view === "work" ? work() : `${secAbout()}${secStack()}<section class="section">${devTeaser()}</section>${secContact()}`}${footer()}</main></div>`;
+            }
+            function layout3() {
+                if (S.view === "work") return `<div class="wrap">${topnav()}${work()}${footer()}</div>`;
+                return `<div class="wrap">${topnav()}
+                    <div class="bento">
+                        <div class="card t1"><div>${heroText()}</div>${heroCta()}</div>
+                        <div class="card t2"><p class="eyebrow">Now</p><p style="margin-top:8px">${ph("[Placeholder] what I am working on right now")}</p></div>
+                        <div class="card t2"><p class="eyebrow">Languages</p><p style="margin-top:8px">Polish · English <span class="muted">(picked from your browser)</span></p></div>
+                        <div class="card t3" id="about"><p class="eyebrow">About</p><p class="muted" style="margin-top:8px">${ph(P.about)}</p></div>
+                        <div class="card t5" id="stack"><p class="eyebrow">Stack</p><div class="chips" style="margin-top:12px">${P.stack.map((s) => `<span class="chip">${esc(s)}</span>`).join("")}</div></div>
+                        <a class="card hoverable t4" href="#" data-act="work"><p class="eyebrow">Developer area</p><h2 class="h2" style="margin-top:6px">Projects, documentation and live demos →</h2><p class="muted">${PROJECTS.map((p) => p.name).join(" · ")}</p></a>
+                        <div class="card t4 plain" id="contact"><p class="eyebrow">Contact</p><div class="row" style="margin-top:12px">${P.contacts.map((c, i) => `<a class="btn ${i === 0 ? "btn-primary" : ""}" href="${c.href}">${c.label}</a>`).join("")}</div></div>
+                    </div>${footer()}</div>`;
+            }
+            function layout4() {
+                return `<div class="l4"><div class="wrap">${topnav()}
+                    ${S.view === "work" ? work() : `
+                    <section class="hero">${heroText()}</section>
+                    <section class="section" id="about"><p class="eyebrow">Story</p><h2 class="h2">The short version</h2>
+                        <p class="muted" style="margin-bottom:20px">${ph(P.about)}</p>
+                        <div class="timeline">${P.story.map((s, i) => `
+                            <div class="tl-item"><button class="tl-head" data-act="tl" data-v="${i}" aria-expanded="${i === 0 || !!S.tl[i]}"><div class="tl-year">${esc(s.year)}</div><div class="tl-title">${esc(s.title)}</div></button>
+                            ${i === 0 || S.tl[i] ? `<p class="tl-body">${ph(s.text)}</p>` : ""}</div>`).join("")}</div>
+                    </section>
+                    ${secStack()}
+                    <section class="section">${devTeaser()}</section>${secContact()}`}
+                    ${footer()}</div></div>`;
+            }
+            const FILES = {
+                whoami: () => `${P.name} — ${P.role}.\n${P.tagline}`,
+                about: () => P.about,
+                stack: () => P.stack.join("  "),
+                contact: () => P.contacts.map((c) => `${c.label}: ${c.href.replace("mailto:", "")}`).join("\n"),
+                work: () => PROJECTS.map((p) => `${p.name.padEnd(14)} ${p.tag}\n${"".padEnd(14)} ${p.live}`).join("\n"),
+                help: () => "Commands: whoami  about  stack  work  contact  clear  help\nTip: click a shortcut below or type and press Enter.",
+            };
+            function runCmd(raw) {
+                const c = raw.trim().toLowerCase();
+                if (!c) return;
+                if (c === "clear") { S.term = []; return; }
+                const out = FILES[c] ? FILES[c]() : `command not found: ${c}. Type "help".`;
+                S.term.push({ cmd: c, out });
+            }
+            function layout5() {
+                if (!S.termInit) { S.termInit = true; runCmd("whoami"); runCmd("help"); }
+                if (S.view === "work") { S.term = []; runCmd("work"); }
+                return `<div class="l5"><div class="term">
+                    <div class="term-bar"><i></i><i></i><i></i><span style="margin-left:8px">klefas@me: ~ ${S.view === "work" ? "/work" : ""}</span></div>
+                    <div class="term-body" id="termBody" aria-live="polite">
+                        ${S.term.map((l) => `<div class="term-line"><span class="term-cmd">$ ${esc(l.cmd)}</span></div><div class="term-line term-out">${esc(l.out)}</div>`).join("")}
+                        <form class="term-input" id="termForm"><span class="term-cmd">$</span><input id="termInput" autocomplete="off" aria-label="Terminal command" placeholder="type a command…" /></form>
+                    </div>
+                    <div class="term-shortcuts">${["whoami", "about", "stack", "work", "contact", "help", "clear"].map((c) => `<button class="chip" data-act="cmd" data-v="${c}">${c}</button>`).join("")}
+                        <button class="chip" data-act="${S.view === "work" ? "home" : "work"}">${S.view === "work" ? "← personal" : "open developer area"}</button></div>
+                    </div></div>`;
+            }
+
+            /* ═════════ Design system sheet ═════════ */
+            const TOKENS = ["bg", "surface", "surface2", "fg", "muted", "accent", "accent2", "border"];
+            function sheet() {
+                const cs = getComputedStyle($("#stage"));
+                const sw = TOKENS.map((t) => { const v = cs.getPropertyValue("--" + t).trim(); return `<button class="swatch" data-act="copy" data-v="${esc(v)}" title="Click to copy"><div class="c" style="background:var(--${t})"></div><div class="n"><b>--${t}</b>${esc(v)}</div></button>`; }).join("");
+                const desc = { a: "Heritage of R3TRO: monospace everywhere, neon on near-black, hard edges, bracketed actions. Feels like a terminal.", b: "Closest to today's site: Inter, violet and pink, rounded cards, soft shadows. Friendly and modern.", c: "Editorial and calm: serif headings, warm paper, hairline rules, one rust accent. Reads like a magazine page." }[S.ds];
+                return `<div class="wrap"><div class="sheet">
+                    <section><p class="eyebrow">Design system</p><h1 class="display" style="font-size:clamp(2rem,5vw,3.2rem)">${DS[S.ds].name}</h1><p class="lead" style="margin-top:12px">${desc}</p></section>
+                    <section><h3>Color tokens (click to copy)</h3><div class="swatches">${sw}</div></section>
+                    <section><h3>Typography</h3>
+                        <div class="type-row"><small>display</small><span class="display" style="font-size:clamp(2rem,5vw,3rem)">Hi, I'm Klefas.</span></div>
+                        <div class="type-row"><small>h2</small><span class="h2" style="margin:0">Projects and documentation</span></div>
+                        <div class="type-row"><small>body</small><span>Small, fast, honest things for the web.</span></div>
+                        <div class="type-row"><small>muted</small><span class="muted">Secondary text for descriptions and hints.</span></div>
+                        <div class="type-row"><small>mono / eyebrow</small><span class="eyebrow">Developer area</span></div></section>
+                    <section><h3>Buttons and chips</h3><div class="row"><button class="btn btn-primary">Primary</button><button class="btn">Secondary</button><span class="chip">chip</span><span class="pbadge"><span class="dot"></span>badge</span></div></section>
+                    <section><h3>Cards</h3><div class="proj-grid"><div class="card"><p class="eyebrow">Static</p><h3 class="h2" style="margin-top:6px">Card</h3><p class="muted">Surface, border and radius come from tokens.</p></div><a class="card" href="#" data-act="noop"><p class="eyebrow">Hover me</p><h3 class="h2" style="margin-top:6px">Link card</h3><p class="muted">Lifts and highlights the accent.</p></a></div></section>
+                    <section><h3>Form field and radius</h3><input class="field" placeholder="Type here…" aria-label="Sample field" /><div class="radius-demo" style="margin-top:16px"><div style="border-radius:var(--radius-sm)">radius-sm</div><div style="border-radius:var(--radius)">radius</div></div></section>
+                    <section><h3>Tokens as JSON</h3><button class="btn" data-act="copyjson">Copy tokens JSON</button></section>
+                </div></div>`;
+            }
+
+            /* ═════════ Render ═════════ */
+            function chrome() {
+                const group = (el, items, key) => { el.innerHTML = items.map(([v, label]) => `<button class="xbtn" data-x="${key}" data-v="${v}" aria-pressed="${String(S[key]) === String(v)}">${label}</button>`).join(" "); };
+                group($("#xDs"), Object.entries(DS).map(([k, v]) => [k, v.short]), "ds");
+                group($("#xLayout"), Object.entries(LAYOUTS).map(([k, v]) => [k, `${k} ${v}`]), "layout");
+                $("#xView").innerHTML = [["home", "Personal"], ["work", "Developer area"], ["sheet", "Design sheet"]].map(([v, l]) => `<button class="xbtn" data-x="view" data-v="${v}" aria-pressed="${v === "sheet" ? S.sheet : !S.sheet && S.view === v}">${l}</button>`).join(" ");
+                group($("#xMode"), [["dark", "Dark"], ["light", "Light"]], "mode");
+            }
+            function render(keepScroll) {
+                const y = scrollY;
+                const st = $("#stage");
+                st.dataset.ds = S.ds; st.dataset.mode = S.mode; st.dataset.layout = S.layout;
+                chrome();
+                st.innerHTML = S.sheet ? sheet() : [null, layout1, layout2, layout3, layout4, layout5][S.layout]();
+                writeHash();
+                const input = $("#termInput");
+                if (input && S.focusTerm) { input.focus(); S.focusTerm = false; }
+                const tb = $("#termBody"); if (tb && S.focusTerm !== undefined) tb.scrollTop = tb.scrollHeight;
+                if (keepScroll) scrollTo(0, y);
+                requestAnimationFrame(() => st.classList.add("ready"));
+            }
+
+            /* ═════════ Events ═════════ */
+            document.addEventListener("click", (e) => {
+                const x = e.target.closest("[data-x]");
+                if (x) {
+                    const k = x.dataset.x, v = x.dataset.v;
+                    if (k === "view") { S.sheet = v === "sheet"; if (!S.sheet) S.view = v; }
+                    else S[k] = k === "layout" ? +v : v;
+                    render(); return;
+                }
+                const a = e.target.closest("[data-act]");
+                if (!a) return;
+                const act = a.dataset.act, v = a.dataset.v;
+                if (act !== "noop" && a.tagName === "A" && a.getAttribute("href") === "#") e.preventDefault();
+                if (act === "noop") e.preventDefault();
+                else if (act === "work") { S.view = "work"; S.sheet = false; render(); scrollTo(0, 0); }
+                else if (act === "home") { S.view = "home"; S.sheet = false; render(); scrollTo(0, 0); }
+                else if (act === "scroll") {
+                    if (S.view !== "home") { S.view = "home"; render(); }
+                    const t = document.getElementById(a.dataset.t); if (t) t.scrollIntoView({ behavior: "smooth", block: "start" });
+                }
+                else if (act === "filter") { S.filter = v; render(true); }
+                else if (act === "docs") { S.docs[v] = !S.docs[v]; render(true); }
+                else if (act === "tl") { S.tl[v] = !S.tl[v]; render(true); }
+                else if (act === "cmd") { runCmd(v); S.focusTerm = true; render(true); }
+                else if (act === "copy") { try { navigator.clipboard.writeText(v); a.querySelector("b").textContent = "copied"; } catch { /* clipboard unavailable */ } }
+                else if (act === "copyjson") {
+                    const cs = getComputedStyle($("#stage")); const o = {};
+                    TOKENS.concat(["radius", "radius-sm", "font-display", "font-body", "font-mono"]).forEach((t) => (o[t] = cs.getPropertyValue("--" + t).trim()));
+                    try { navigator.clipboard.writeText(JSON.stringify({ system: DS[S.ds].name, mode: S.mode, tokens: o }, null, 2)); a.textContent = "Copied"; } catch { a.textContent = "Clipboard unavailable"; }
+                }
+            });
+            document.addEventListener("submit", (e) => {
+                if (e.target.id !== "termForm") return;
+                e.preventDefault();
+                runCmd($("#termInput").value); S.focusTerm = true; render(true);
+            });
+            addEventListener("hashchange", () => { readHash(); render(true); });
+            render();
+        </script>
+    </body>
+</html>
