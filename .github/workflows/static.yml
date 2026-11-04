@@ -41,7 +41,7 @@ jobs:
         run: |
           mkdir _site
           rsync -a --exclude='/_site' --exclude='/.git' --exclude='/.github' \
-            --exclude='/docs' --exclude='/README.md' --exclude='/SECURITY.md' --exclude='/.htmlvalidate.json' ./ _site/
+            --exclude='/docs' --exclude='/design' --exclude='/README.md' --exclude='/SECURITY.md' --exclude='/.htmlvalidate.json' ./ _site/
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
