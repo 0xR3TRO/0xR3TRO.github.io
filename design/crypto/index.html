@@ -1,0 +1,433 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+        <meta name="claude:viewport-fit-sides" content="cover" />
+        <meta name="robots" content="noindex" />
+        <title>Klefas Crypto Look</title>
+        <link rel="stylesheet" href="../../fonts/fonts.css" />
+        <style>
+            /* Concept: an exchange-style personal site. OKX supplies the stark black/white, huge bold type, pill buttons and numbered steps;
+               TradingView supplies the symbol chips, screener tables, area chart and period row. Two themes only: Black and White. */
+            :root {
+                --x-bg: #f2f2f2; --x-fg: #111; --x-muted: #5f5f5f; --x-line: #d9d9d9; --x-on: #fff; --x-hi: #111;
+            }
+            @media (prefers-color-scheme: dark) {
+                :root:not([data-theme="light"]) { --x-bg: #0b0b0b; --x-fg: #f1f1f1; --x-muted: #9a9a9a; --x-line: #2a2a2a; --x-on: #000; --x-hi: #f1f1f1; color-scheme: dark; }
+            }
+            :root[data-theme="dark"] { --x-bg: #0b0b0b; --x-fg: #f1f1f1; --x-muted: #9a9a9a; --x-line: #2a2a2a; --x-on: #000; --x-hi: #f1f1f1; color-scheme: dark; }
+            * { box-sizing: border-box; margin: 0; padding: 0; }
+            html { scroll-behavior: smooth; }
+            body { background: var(--x-bg); color: var(--x-fg); font-family: Inter, system-ui, sans-serif; font-size: 14px; padding-inline: 0; }
+
+            /* explorer chrome */
+            .xbar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 60; background: var(--x-bg); border-bottom: 1px solid var(--x-line);
+                display: flex; flex-wrap: wrap; gap: 8px 22px; align-items: center; padding: 10px max(16px, env(safe-area-inset-right, 0px)) 10px max(16px, env(safe-area-inset-left, 0px)); font-size: 12.5px; }
+            body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 70; background: var(--x-bg); }
+            .xg { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; min-width: 0; }
+            .xl { color: var(--x-muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.09em; margin-right: 2px; }
+            .xb { font: inherit; color: var(--x-fg); background: transparent; border: 1px solid var(--x-line); border-radius: 999px; padding: 6px 12px; cursor: pointer; }
+            .xb:hover { border-color: var(--x-hi); }
+            .xb[aria-pressed="true"] { background: var(--x-hi); color: var(--x-on); border-color: var(--x-hi); font-weight: 600; }
+            .xb:focus-visible, .stage :focus-visible { outline: 2px solid #3b82f6; outline-offset: 2px; }
+            .xnote { color: var(--x-muted); font-size: 12px; margin-left: auto; }
+
+            /* ══ stage tokens: the two themes ══ */
+            .stage { --r-card: 14px; --r-btn: 999px; --r-chip: 8px; }
+            .stage[data-p="2"] { --r-card: 14px; --r-btn: 10px; --r-chip: 10px; }
+            .stage[data-p="3"] { --r-card: 16px; --r-btn: 999px; --r-chip: 8px; }
+            .stage[data-t="dark"] {
+                --bg: #000; --bg2: #0e0e0e; --surface: #121212; --surface2: #1b1b1b; --line: #262626; --line2: #3b3b3b; --fg: #ffffff; --fg2: #d0d0d0;
+                --muted: #8f8f8f; --up: #22d6a8; --down: #ff5c6c; --link: #d4ff3d; --on-fg: #000; --hdr: #000; --hdr-fg: #fff; --hdr-line: #262626;
+                --glow: drop-shadow(0 0 7px rgba(34, 214, 168, 0.55));
+            }
+            .stage[data-t="light"] {
+                --bg: #fff; --bg2: #f5f5f5; --surface: #f6f6f6; --surface2: #ececec; --line: #e4e4e4; --line2: #c9c9c9; --fg: #000; --fg2: #2a2a2a;
+                --muted: #6a6a6a; --up: #0a8a6a; --down: #e0314a; --link: #1b6a2e; --on-fg: #fff; --hdr: #000; --hdr-fg: #fff; --hdr-line: #262626;
+                --glow: none;
+            }
+            .stage[data-p="2"] { --hdr: var(--bg); --hdr-fg: var(--fg); --hdr-line: var(--line); }
+            .stage { background: var(--bg); color: var(--fg); min-height: calc(100vh - 54px); font-size: 15px; line-height: 1.55; }
+            .stage a { color: inherit; }
+            .num { font-variant-numeric: tabular-nums; }
+            .mono { font-family: "JetBrains Mono", ui-monospace, monospace; }
+            .wrap { max-width: 1200px; margin: 0 auto; padding-inline: max(20px, env(safe-area-inset-left, 0px)); }
+            .muted { color: var(--muted); }
+            .up { color: var(--up); } .down { color: var(--down); }
+            .display { font-weight: 800; letter-spacing: -0.045em; line-height: 1.02; font-size: clamp(2.6rem, 7.2vw, 5.4rem); text-wrap: balance; }
+            .h2 { font-weight: 800; letter-spacing: -0.03em; line-height: 1.1; font-size: clamp(1.7rem, 3.4vw, 2.5rem); text-wrap: balance; }
+            .h3 { font-weight: 700; letter-spacing: -0.02em; font-size: 1.15rem; }
+            .lead { color: var(--muted); font-size: clamp(1rem, 1.6vw, 1.2rem); max-width: 56ch; }
+            .label { font-size: 12.5px; color: var(--muted); }
+            .ph { outline: 1px dashed var(--muted); outline-offset: 3px; }
+            .stage[data-p="2"] .h-glow { text-shadow: 0 0 22px rgba(255, 255, 255, 0.22); }
+            .stage[data-t="light"] .h-glow { text-shadow: none; }
+
+            .btn { font: inherit; font-weight: 600; font-size: 14.5px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; text-decoration: none;
+                padding: 12px 22px; border-radius: var(--r-btn); border: 1px solid var(--fg); background: transparent; color: var(--fg); transition: background 0.15s, color 0.15s, border-color 0.15s; }
+            .btn:hover { background: var(--surface2); }
+            .btn.solid { background: var(--fg); color: var(--on-fg); }
+            .btn.solid:hover { opacity: 0.86; background: var(--fg); }
+            .btn.sm { padding: 7px 14px; font-size: 13px; }
+            .btn.line { border-color: var(--line2); }
+            .btn.wide { width: 100%; padding: 14px 22px; }
+            .link { color: var(--link); text-decoration: underline; text-underline-offset: 3px; font-weight: 600; background: none; border: none; font: inherit; font-weight: 600; cursor: pointer; }
+            .chip { display: inline-flex; align-items: center; gap: 6px; padding: 3px 9px; border-radius: var(--r-chip); background: var(--surface2); font-size: 12.5px; font-weight: 600; font-family: "JetBrains Mono", ui-monospace, monospace; letter-spacing: 0.01em; }
+            .pillf { font: inherit; font-size: 13.5px; color: var(--fg); background: transparent; border: 1px solid var(--line2); border-radius: var(--r-chip); padding: 8px 14px; cursor: pointer; }
+            .pillf:hover { border-color: var(--fg); }
+            .pillf[aria-pressed="true"] { background: var(--surface2); border-color: var(--surface2); font-weight: 700; }
+            .card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-card); padding: 22px; }
+            .row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+            .sec { padding-block: clamp(40px, 7vw, 88px); }
+            .sec + .sec { border-top: 1px solid var(--line); }
+
+            /* header */
+            .hdr { background: var(--hdr); color: var(--hdr-fg); border-bottom: 1px solid var(--hdr-line); }
+            .hdr a, .hdr button { color: inherit; }
+            .hdr-in { display: flex; align-items: center; gap: 28px; height: 56px; }
+            .logo { display: inline-flex; align-items: center; gap: 10px; font-weight: 800; letter-spacing: -0.03em; font-size: 1.2rem; background: none; border: none; cursor: pointer; font-family: inherit; }
+            .mark { display: grid; grid-template-columns: repeat(3, 7px); grid-template-rows: repeat(3, 7px); gap: 2px; }
+            .mark i { background: currentColor; display: block; } .mark i:nth-child(2n) { opacity: 0.25; }
+            .hnav { display: flex; gap: 4px; flex: 1; min-width: 0; flex-wrap: wrap; }
+            .hnav button { font: inherit; font-size: 14px; font-weight: 500; padding: 8px 12px; background: none; border: none; cursor: pointer; border-radius: 8px; opacity: 0.8; }
+            .hnav button:hover, .hnav button[aria-current="page"] { opacity: 1; background: rgba(128, 128, 128, 0.18); }
+            .hdr .btn { border-color: currentColor; padding: 7px 16px; font-size: 13.5px; }
+            .sub { background: var(--bg2); border-bottom: 1px solid var(--line); font-size: 13px; color: var(--muted); }
+            .sub .wrap { display: flex; gap: 8px; align-items: center; height: 44px; overflow-x: auto; white-space: nowrap; }
+            .sub b { color: var(--fg); font-weight: 600; }
+            .crumbs { font-size: 13px; color: var(--muted); padding-top: 28px; }
+            .crumbs b { color: var(--fg); font-weight: 600; }
+
+            /* P1 */
+            .hero1 { text-align: center; padding-block: clamp(56px, 11vw, 140px) clamp(40px, 6vw, 80px); }
+            .hero1 .display { margin-bottom: 20px; }
+            .hero1 .lead { margin: 0 auto 32px; }
+            .hero1 .row { justify-content: center; }
+            .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+            .stat { padding: 28px 20px; border-right: 1px solid var(--line); }
+            .stat:last-child { border-right: none; }
+            .stat .n { font-weight: 800; font-size: clamp(2rem, 4.6vw, 3.4rem); letter-spacing: -0.04em; line-height: 1; }
+            .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; }
+            .step .k { font-size: 12.5px; color: var(--muted); }
+            .step .t { font-weight: 800; font-size: 1.6rem; letter-spacing: -0.03em; margin: 6px 0; }
+            .big-rows { border-top: 1px solid var(--line); }
+            .big-row { display: grid; grid-template-columns: 90px 1.2fr 2fr 140px; gap: 20px; align-items: center; padding: 26px 0; border-bottom: 1px solid var(--line); background: none; border-inline: none; border-top: none; width: 100%; text-align: left; font: inherit; color: inherit; cursor: pointer; }
+            .big-row:hover { background: var(--bg2); }
+            .big-row .nm { font-weight: 800; font-size: clamp(1.4rem, 2.6vw, 2rem); letter-spacing: -0.03em; }
+            .banner { position: sticky; bottom: 0; z-index: 15; background: var(--surface2); border-top: 1px solid var(--line); padding: 14px max(44px, env(safe-area-inset-left, 0px)); text-align: center; font-size: 14px; }
+            .banner .x { position: absolute; right: 16px; top: 8px; background: none; border: none; color: var(--muted); font-size: 22px; cursor: pointer; }
+
+            /* P2 */
+            .ent { display: flex; gap: 18px; align-items: center; padding-top: 14px; flex-wrap: wrap; }
+            .av { width: 76px; height: 76px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #5b8cff, #1a3cff 70%); display: grid; place-items: center; font-weight: 800; font-size: 28px; color: #fff; flex: none; }
+            .stage[data-t="light"] .av { background: #111; }
+            .price { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-top: 18px; }
+            .price .v { font-weight: 800; font-size: clamp(2.2rem, 5vw, 3.2rem); letter-spacing: -0.04em; line-height: 1; }
+            .tabs { display: flex; gap: 22px; margin-top: 26px; overflow-x: auto; position: relative; border-bottom: 3px solid var(--surface2); }
+            .tab { font: inherit; font-weight: 600; font-size: 14.5px; color: var(--muted); background: none; border: none; padding: 10px 0 12px; cursor: pointer; white-space: nowrap; margin-bottom: -3px; border-bottom: 3px solid transparent; }
+            .tab:hover { color: var(--fg); }
+            .tab[aria-selected="true"] { color: var(--fg); border-bottom-color: var(--fg); }
+            .chartbox { margin-top: 22px; position: relative; }
+            .chartbox svg { width: 100%; height: auto; display: block; overflow: visible; }
+            .periods { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-top: 18px; }
+            .period { font: inherit; text-align: center; background: none; border: none; color: var(--fg); padding: 12px 6px; border-radius: 10px; cursor: pointer; }
+            .period b { display: block; font-weight: 600; font-size: 13.5px; }
+            .period span { font-size: 13px; font-weight: 600; }
+            .period[aria-pressed="true"] { background: var(--surface2); }
+            .filters { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0; }
+            .tbl-wrap { overflow-x: auto; }
+            table { width: 100%; border-collapse: collapse; min-width: 720px; }
+            th { text-align: left; font-weight: 500; font-size: 12.5px; color: var(--muted); padding: 10px 12px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+            td { padding: 14px 12px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+            tr.clk { cursor: pointer; } tr.clk:hover td { background: var(--bg2); }
+            td .sym { display: inline-flex; align-items: center; gap: 12px; font-weight: 700; }
+            .ico { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; font-size: 11px; font-weight: 800; color: #fff; flex: none; }
+            .unit { color: var(--muted); font-size: 11.5px; margin-left: 4px; }
+            .spark { display: block; width: 100px; height: 28px; overflow: visible; }
+
+            /* P3 */
+            .split { display: grid; grid-template-columns: 280px 1fr; gap: clamp(28px, 5vw, 72px); padding-block: 48px 72px; align-items: start; }
+            .toc { position: sticky; top: calc(var(--xh, 54px) + 16px); display: grid; gap: 4px; }
+            .toc .who { margin-bottom: 22px; }
+            .toc .av { width: 64px; height: 64px; font-size: 24px; margin-bottom: 14px; }
+            .toc button { font: inherit; text-align: left; color: var(--muted); background: none; border: none; border-left: 2px solid var(--line); padding: 8px 14px; cursor: pointer; font-size: 14.5px; }
+            .toc button:hover { color: var(--fg); }
+            .toc button[aria-current="true"] { color: var(--fg); border-left: 3px solid var(--fg); font-weight: 600; }
+            .srow { display: grid; grid-template-columns: 1fr 2fr; gap: 28px; padding: 22px 0; border-bottom: 1px solid var(--line); }
+            .srow .l { font-weight: 800; font-size: 1.15rem; letter-spacing: -0.02em; }
+            .nrow { display: grid; grid-template-columns: 44px 1.2fr 2fr; gap: 16px; padding: 18px 0; border-bottom: 1px solid var(--line); align-items: baseline; }
+            .nrow .n { font-weight: 800; font-size: 1.2rem; }
+            .nrow .t { font-weight: 700; font-size: 1.1rem; letter-spacing: -0.02em; }
+            .nrow .d { color: var(--muted); }
+            .acc { border-bottom: 1px solid var(--line); }
+            .acc-h { display: grid; grid-template-columns: 56px 1.3fr 1fr 40px; gap: 14px; align-items: center; padding: 18px 0; width: 100%; background: none; border: none; font: inherit; color: inherit; cursor: pointer; text-align: left; }
+            .acc-b { padding: 0 0 22px 70px; display: grid; gap: 10px; color: var(--muted); max-width: 70ch; }
+            .acc-b b { color: var(--fg); }
+
+            /* project detail + contact + about shared */
+            .phead { display: grid; gap: 14px; padding-block: 24px 8px; }
+            .kv { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); margin-block: 22px; }
+            .kv > div { padding: 16px 16px 16px 0; }
+            .kv .v { font-weight: 800; font-size: 1.5rem; letter-spacing: -0.03em; }
+            .docs-grid { display: grid; grid-template-columns: 1fr 240px; gap: 40px; align-items: start; }
+            .contact { display: grid; grid-template-columns: 1fr 1fr; min-height: 560px; }
+            .contact .l { background: #000; color: #fff; padding: clamp(28px, 5vw, 72px); display: flex; flex-direction: column; justify-content: center; gap: 28px; }
+            .contact .l .display { font-size: clamp(2rem, 4.4vw, 3.4rem); }
+            .contact .rt { padding: clamp(28px, 5vw, 72px); display: flex; flex-direction: column; justify-content: center; gap: 14px; max-width: 520px; width: 100%; margin-inline: auto; }
+            .dashes { display: flex; gap: 14px; }
+            .dashes i { width: 22px; height: 2px; background: rgba(255, 255, 255, 0.5); display: block; }
+            .field { font: inherit; padding: 14px 16px; border-radius: 12px; border: 1px solid var(--line2); background: var(--surface); color: var(--fg); width: 100%; }
+            .footer { padding: 36px 0 48px; color: var(--muted); font-size: 13px; border-top: 1px solid var(--line); }
+            .footer .wrap { display: flex; flex-wrap: wrap; gap: 8px 24px; justify-content: space-between; }
+
+            /* map */
+            .mapw { padding-block: 40px 72px; }
+            .map { position: relative; display: grid; grid-template-columns: 250px 1fr 1fr; gap: 56px 80px; align-items: center; margin-top: 28px; }
+            .col { display: grid; gap: 18px; align-content: center; }
+            .node { position: relative; text-align: left; font: inherit; color: var(--fg); background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-card); padding: 14px 16px; cursor: pointer; display: grid; gap: 8px; transition: border-color 0.15s, transform 0.15s; }
+            .node:hover { border-color: var(--fg); transform: translateY(-2px); }
+            .node .tp { color: var(--muted); height: 54px; }
+            .node .tp svg { width: 100%; height: 100%; display: block; }
+            .node .nt { font-weight: 800; letter-spacing: -0.02em; }
+            .node .rt { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 11.5px; color: var(--link); }
+            .node .ds { font-size: 12.5px; color: var(--muted); line-height: 1.4; }
+            .node.root { background: var(--fg); color: var(--on-fg); border-color: var(--fg); } .node.root .ds, .node.root .rt { color: var(--on-fg); opacity: 0.75; }
+            .map svg.lines { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
+            .map svg.lines path { fill: none; stroke: var(--line2); stroke-width: 1.5; }
+            .legend { display: flex; flex-wrap: wrap; gap: 8px 22px; margin-top: 32px; color: var(--muted); font-size: 13px; }
+
+            @media (max-width: 860px) {
+                .stats { grid-template-columns: repeat(2, 1fr); } .stat:nth-child(2) { border-right: none; } .stat { border-bottom: 1px solid var(--line); }
+                .steps { grid-template-columns: 1fr; gap: 24px; }
+                .big-row { grid-template-columns: 1fr; gap: 6px; }
+                .split { grid-template-columns: 1fr; } .toc { position: static; display: flex; flex-wrap: wrap; gap: 6px; } .toc .who { width: 100%; margin-bottom: 8px; }
+                .toc button { border: 1px solid var(--line2); border-radius: 999px; padding: 6px 12px; } .toc button[aria-current="true"] { border: 1px solid var(--fg); }
+                .srow, .nrow { grid-template-columns: 1fr; gap: 6px; }
+                .acc-h { grid-template-columns: 48px 1fr 32px; } .acc-h .hide-s { display: none; } .acc-b { padding-left: 0; }
+                .docs-grid { grid-template-columns: 1fr; }
+                .contact { grid-template-columns: 1fr; }
+                .map { grid-template-columns: 1fr; gap: 14px; } .map svg.lines { display: none; }
+                .xnote { display: none; }
+                .hdr-in { gap: 6px 10px; height: auto; flex-wrap: wrap; padding-block: 10px; } .hdr .btn { display: none; }
+                .hnav { order: 3; flex: none; width: 100%; flex-wrap: nowrap; overflow-x: auto; } .hnav button { white-space: nowrap; }
+            }
+            @media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }
+        </style>
+    </head>
+    <body>
+        <header class="xbar" aria-label="Explorer controls">
+            <div class="xg"><span class="xl">Proposal</span><span id="xP"></span></div>
+            <div class="xg"><span class="xl">Theme</span><span id="xT"></span></div>
+            <div class="xg"><span class="xl">Page</span><span id="xG"></span></div>
+            <span class="xnote">Placeholder content and sample data. Click anything.</span>
+        </header>
+        <div class="stage" id="stage"></div>
+
+        <script>
+            /* ══ data ══ */
+            const PROPOSALS = { 1: "Exchange", 2: "Market view", 3: "Split ledger" };
+            const PAGES = [["map", "Map"], ["home", "Home"], ["about", "About"], ["work", "Developer area"], ["project", "Project"], ["contact", "Contact"]];
+            const ME = { name: "Klefas", role: "Web developer", tag: "I build small, fast, honest things for the web.", email: "kontakt@klefas.me", gh: "https://github.com/0xR3TRO" };
+            const PROJ = [
+                { id: "arcade", sym: "ARC", name: "R3TRO Arcade", kind: "Games", big: "14", unit: "games", desc: "Puzzles, arcade games and classics. No ads, no trackers.", stack: ["JavaScript", "Canvas", "No dependencies"], live: "https://klefas.me/arcade/", seed: 7, col: "#2b6cff" },
+                { id: "lab", sym: "LAB", name: "R3TRO Lab", kind: "Tools", big: "24", unit: "apps", desc: "Small tools, widgets and UI experiments in plain HTML, CSS and JavaScript.", stack: ["HTML", "CSS", "JavaScript"], live: "https://klefas.me/lab/", seed: 19, col: "#8a4dff" },
+                { id: "budgetly", sym: "BUD", name: "Budgetly", kind: "Apps", big: "1", unit: "app", desc: "Expenses, categories, a monthly budget and charts. Your data stays on your device.", stack: ["JavaScript", "localStorage", "Charts"], live: "https://klefas.me/budgetly/", seed: 31, col: "#e0763a" },
+            ];
+            const S = { p: 1, t: "dark", page: "home", proj: "arcade", tab: "Overview", period: "1M", filter: "All", open: {}, banner: true, step: 0 };
+
+            /* ══ helpers ══ */
+            const $ = (s, r = document) => r.querySelector(s);
+            const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+            const ph = (s) => `<span class="ph">${esc(s)}</span>`;
+            function series(seed, n) { let x = seed * 9301 + 49297, v = 100, out = []; for (let i = 0; i < n; i++) { x = (x * 9301 + 49297) % 233280; v += (x / 233280 - 0.46) * 4.2; out.push(Math.max(60, v)); } return out; }
+            const PER = { "1W": 7, "1M": 30, "3M": 60, "1Y": 120, "ALL": 200 };
+            const pct = (a) => ((a[a.length - 1] / a[0] - 1) * 100);
+            const fmtPct = (n) => (n >= 0 ? "+" : "−") + Math.abs(n).toFixed(2).replace(".", ",") + "%";
+            function spark(a) {
+                const w = 100, h = 28, mn = Math.min(...a), mx = Math.max(...a);
+                const pts = a.map((v, i) => `${(i / (a.length - 1) * w).toFixed(1)},${(h - 2 - (v - mn) / (mx - mn || 1) * (h - 4)).toFixed(1)}`).join(" ");
+                const c = pct(a) >= 0 ? "var(--up)" : "var(--down)";
+                return `<svg class="spark" viewBox="0 0 ${w} ${h}" aria-hidden="true"><polyline points="${pts}" fill="none" stroke="${c}" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/></svg>`;
+            }
+            function chart(a, glow) {
+                const W = 900, H = 340, R = 64, B = 34, mn = Math.min(...a), mx = Math.max(...a), rng = mx - mn || 1;
+                const X = (i) => (i / (a.length - 1)) * (W - R), Y = (v) => 10 + (1 - (v - mn) / rng) * (H - B - 20);
+                const line = a.map((v, i) => `${i ? "L" : "M"}${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join("");
+                const area = `${line}L${X(a.length - 1)},${H - B}L0,${H - B}Z`;
+                const up = a[a.length - 1] >= a[0], c = up ? "var(--up)" : "var(--down)";
+                const ticks = [0, 1, 2, 3, 4].map((k) => mn + (rng * k) / 4);
+                const last = a[a.length - 1];
+                const xl = ["Start", "", "", "", "Now"];
+                return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Sample activity chart">
+                    <defs><linearGradient id="gA" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${c}" stop-opacity="0.5"/><stop offset="1" stop-color="${c}" stop-opacity="0"/></linearGradient></defs>
+                    ${ticks.map((t) => `<line x1="0" x2="${W - R}" y1="${Y(t).toFixed(1)}" y2="${Y(t).toFixed(1)}" stroke="var(--line)" stroke-dasharray="2 5"/><text x="${W - R + 10}" y="${(Y(t) + 4).toFixed(1)}" fill="var(--muted)" font-size="12" class="num">${t.toFixed(0)}</text>`).join("")}
+                    <path d="${area}" fill="url(#gA)"/>
+                    <path d="${line}" fill="none" stroke="${c}" stroke-width="2.2" stroke-linejoin="round" ${glow ? 'style="filter:var(--glow)"' : ""}/>
+                    <rect x="${W - R + 2}" y="${(Y(last) - 11).toFixed(1)}" width="56" height="22" rx="4" fill="${c}"/><text x="${W - R + 30}" y="${(Y(last) + 4).toFixed(1)}" text-anchor="middle" fill="var(--on-fg)" font-size="12" font-weight="700" class="num">${last.toFixed(1)}</text>
+                    ${xl.map((l, i) => `<text x="${(i / 4) * (W - R)}" y="${H - 8}" fill="var(--muted)" font-size="12" text-anchor="${i === 0 ? "start" : i === 4 ? "end" : "middle"}">${l}</text>`).join("")}
+                </svg>`;
+            }
+            const arrow = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4"/></svg>`;
+            const chev = `<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 6 4 4 4-4"/></svg>`;
+            const proj = (id) => PROJ.find((p) => p.id === id) || PROJ[0];
+
+            /* ══ shared chrome of the stage ══ */
+            function header() {
+                const cur = (k) => (S.page === k || (k === "work" && S.page === "project") ? 'aria-current="page"' : "");
+                return `<header class="hdr"><div class="wrap hdr-in">
+                    <button class="logo" data-go="home"><span class="mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>klefas</button>
+                    <nav class="hnav" aria-label="Main"><button data-go="home" ${cur("home")}>Home</button><button data-go="about" ${cur("about")}>About</button><button data-go="work" ${cur("work")}>Developer area</button><button data-go="contact" ${cur("contact")}>Contact</button></nav>
+                    <button class="btn" data-go="contact">Say hello</button></div></header>`;
+            }
+            function sub(trail) { return S.p === 2 ? "" : `<div class="sub"><div class="wrap"><span>klefas.me</span><span>/</span>${trail.map((t, i) => (i === trail.length - 1 ? `<b>${t}</b>` : `<span>${t}</span><span>/</span>`)).join("")}</div></div>`; }
+            const crumbs = (trail) => S.p === 2 ? `<div class="crumbs wrap" style="padding-inline:0">${trail.map((t, i) => (i === trail.length - 1 ? `<b>${t}</b>` : `${t} / `)).join("")}</div>` : "";
+            const footer = () => `<footer class="footer"><div class="wrap"><span>© 2026 klefas.me · All rights to the content reserved</span><span>Site code: MIT · Sample data on this page is for design only</span></div></footer>`;
+
+            /* ══ project rows used by several pages ══ */
+            function tableWork(list, accordion) {
+                if (accordion) return `<div>${list.map((p) => { const a = series(p.seed, 30), o = !!S.open[p.id]; return `
+                    <div class="acc"><button class="acc-h" data-act="open" data-v="${p.id}" aria-expanded="${o}"><span class="chip">${p.sym}</span><span><b class="h3">${p.name}</b><br><span class="muted">${p.big} ${p.unit}</span></span><span class="hide-s">${spark(a)}</span><span>${chev}</span></button>
+                    ${o ? `<div class="acc-b"><p>${p.desc}</p><p><b>Stack</b> ${p.stack.join(", ")}</p><div class="row"><a class="btn solid sm" href="${p.live}" target="_blank" rel="noopener">Open live</a><button class="btn sm line" data-go="project" data-v="${p.id}">Documentation</button></div></div>` : ""}</div>`; }).join("")}</div>`;
+                return `<div class="tbl-wrap"><table><thead><tr><th>Symbol</th><th>Name</th><th>Type</th><th>Size</th><th>Sample activity</th><th>Change</th><th></th></tr></thead><tbody>${list.map((p) => { const a = series(p.seed, 30), c = pct(a); return `
+                    <tr class="clk" data-go="project" data-v="${p.id}"><td><span class="sym"><span class="ico" style="background:${p.col}">${p.sym[0]}</span><span class="chip">${p.sym}</span></span></td><td><b>${p.name}</b></td><td class="muted">${p.kind}</td>
+                    <td class="num"><b>${p.big}</b><span class="unit">${p.unit}</span></td><td>${spark(a)}</td><td class="num ${c >= 0 ? "up" : "down"}">${fmtPct(c)}</td><td><a class="btn sm line" href="${p.live}" target="_blank" rel="noopener" data-stop="1">Live</a></td></tr>`; }).join("")}</tbody></table></div>`;
+            }
+            const filtered = () => PROJ.filter((p) => S.filter === "All" || p.kind === S.filter);
+            const filterBar = () => `<div class="filters" role="group" aria-label="Filter projects">${["All", "Games", "Tools", "Apps"].map((f) => `<button class="pillf" data-act="filter" data-v="${f}" aria-pressed="${S.filter === f}">${f}</button>`).join("")}</div>`;
+
+            /* ══ pages ══ */
+            function home() {
+                if (S.p === 1) return `${header()}${sub(["Home"])}
+                    <section class="hero1"><div class="wrap"><h1 class="display">Klefas builds<br>for the web.</h1><p class="lead">${ME.tag} Personal site first, with a developer area for projects, documentation and live demos.</p>
+                    <div class="row"><button class="btn solid" data-go="work">Developer area</button><button class="btn" data-go="contact">Say hello</button></div></div></section>
+                    <div class="wrap"><div class="stats">${[["3", "projects"], ["38", "things to open live"], ["0", "trackers"], ["2", "languages"]].map(([n, l]) => `<div class="stat"><div class="n num">${n}</div><div class="label">${l}</div></div>`).join("")}</div></div>
+                    <section class="sec"><div class="wrap"><h2 class="h2" style="margin-bottom:34px">Start in three steps</h2><div class="steps">${[["Step one", "Meet me", "Read the short story on the About page.", "about"], ["Step two", "Browse the work", "Every project has a description and documentation.", "work"], ["Step three", "Open it live", "Run any project in your browser, no install.", "work"]].map(([k, t, d, g]) => `<div class="step"><div class="k">${k}</div><div class="t">${t}</div><p class="muted">${d}</p><button class="link" data-go="${g}">Open</button></div>`).join("")}</div></div></section>
+                    <section class="sec"><div class="wrap"><h2 class="h2" style="margin-bottom:30px">Selected work</h2><div class="big-rows">${PROJ.map((p) => `<button class="big-row" data-go="project" data-v="${p.id}"><span class="chip">${p.sym}</span><span class="nm">${p.name}</span><span class="muted">${p.desc}</span><span class="row" style="justify-content:flex-end"><b class="num">${p.big} ${p.unit}</b>${arrow}</span></button>`).join("")}</div></div></section>
+                    ${footer()}${S.banner ? `<div class="banner"><button class="link" data-go="work">Open the developer area</button> to see projects, docs and live demos<button class="x" data-act="banner" aria-label="Close">×</button></div>` : ""}`;
+                if (S.p === 2) { const a = series(11, PER[S.period]), c = pct(a); return `${header()}<div class="wrap">${crumbs(["Home", "Personal", "Klefas"])}
+                    <div class="ent"><div class="av" aria-hidden="true">K</div><div><h1 class="h2 h-glow" style="font-size:clamp(1.8rem,4vw,2.6rem)">Klefas</h1><div class="row" style="gap:8px"><span class="chip">KLF</span><span class="muted">Web developer · Personal site</span></div></div></div>
+                    <div class="price"><span class="v num h-glow">3</span><span class="muted">projects</span><span class="num ${c >= 0 ? "up" : "down"}" style="font-weight:600">${fmtPct(c)} <span class="muted" style="font-weight:400">sample activity, ${S.period}</span></span></div>
+                    <div class="tabs" role="tablist">${[["Overview", "home"], ["Developer area", "work"], ["About", "about"], ["Contact", "contact"]].map(([l, g]) => `<button class="tab" role="tab" aria-selected="${g === "home"}" data-go="${g}">${l}</button>`).join("")}</div>
+                    <div class="chartbox">${chart(a, S.t === "dark")}</div>
+                    <div class="periods" role="group" aria-label="Period">${Object.keys(PER).map((k) => { const cc = pct(series(11, PER[k])); return `<button class="period" data-act="period" data-v="${k}" aria-pressed="${S.period === k}"><b>${k}</b><span class="num ${cc >= 0 ? "up" : "down"}">${fmtPct(cc)}</span></button>`; }).join("")}</div>
+                    <section class="sec"><h2 class="h2">Work</h2><p class="muted">Projects with documentation and a live version.</p>${filterBar()}${tableWork(filtered(), false)}</section></div>${footer()}`; }
+                return `${header()}${sub(["Home"])}<div class="wrap split"><aside class="toc"><div class="who"><div class="av" aria-hidden="true">K</div><div class="h3">Klefas</div><div class="muted">${ME.role}</div></div>
+                    ${[["about", "About"], ["stack", "Stack"], ["work", "Developer area"], ["contact", "Contact"]].map(([id, l], i) => `<button data-act="scroll" data-v="s-${id}" ${i === S.step ? 'aria-current="true"' : ""}>${l}</button>`).join("")}</aside>
+                    <main><section id="s-about"><h1 class="display" style="font-size:clamp(2.2rem,5vw,3.8rem)">Hi, I'm Klefas.</h1><p class="lead" style="margin-top:14px">${ME.tag}</p>
+                    <div style="margin-top:30px">${[["Who", ph("[Placeholder] where I am from and what drives me")], ["What", "I build websites, small apps and tools in plain HTML, CSS and JavaScript."], ["Why", "Fast, accessible and without trackers."]].map(([l, d]) => `<div class="srow"><div class="l">${l}</div><div class="muted">${d}</div></div>`).join("")}</div></section>
+                    <section id="s-stack" style="margin-top:64px"><h2 class="h2" style="margin-bottom:18px">Stack</h2><div class="row" style="gap:8px">${["HTML", "CSS", "JavaScript", "Git", "[more]"].map((s) => `<span class="chip">${s}</span>`).join("")}</div></section>
+                    <section id="s-work" style="margin-top:64px"><h2 class="h2" style="margin-bottom:6px">Developer area</h2><p class="muted" style="margin-bottom:18px">Open a row for the details and the live link.</p>${tableWork(PROJ, true)}</section>
+                    <section id="s-contact" style="margin-top:64px"><h2 class="h2" style="margin-bottom:18px">Contact</h2><div class="card"><p class="muted" style="margin-bottom:14px">Email is the fastest way.</p><div class="row"><span class="chip">${ME.email}</span><button class="btn sm solid" data-act="copy" data-v="${ME.email}">Copy email</button><a class="btn sm line" href="${ME.gh}" target="_blank" rel="noopener">GitHub</a></div></div></section></main></div>${footer()}`;
+            }
+            function about() {
+                const rows = [["1", "Who I am", ph("[Placeholder] A short personal story: where I am from, what drives me.")], ["2", "What I do", "Websites, small apps and tools in plain HTML, CSS and JavaScript."], ["3", "How I work", "Small steps, plain code, no trackers. Everything is documented."], ["4", "What is next", ph("[Placeholder] what I am working on now")]];
+                return `${header()}${sub(["About"])}<div class="wrap">${crumbs(["Home", "Personal", "About"])}
+                    <section class="sec" style="border:none"><h1 class="display h-glow" style="font-size:clamp(2.4rem,6vw,4.4rem)">About Klefas</h1><p class="lead" style="margin-top:16px">${ME.tag}</p></section>
+                    <div class="docs-grid"><div>${rows.map(([n, t, d]) => `<div class="nrow"><span class="n num">${n}</span><span class="t">${t}</span><span class="d">${d}</span></div>`).join("")}</div>
+                    <aside class="card"><div class="av" style="width:56px;height:56px;font-size:22px;margin-bottom:12px" aria-hidden="true">K</div><div class="h3">Klefas</div><div class="muted" style="margin-bottom:14px">${ME.role}</div><div class="row" style="gap:8px"><button class="btn sm solid" data-go="contact">Say hello</button><button class="btn sm line" data-go="work">Work</button></div></aside></div></div>${footer()}`;
+            }
+            function work() {
+                const body = S.p === 1 ? `<div class="big-rows" style="margin-top:20px">${filtered().map((p) => `<button class="big-row" data-go="project" data-v="${p.id}"><span class="chip">${p.sym}</span><span class="nm">${p.name}</span><span class="muted">${p.desc}</span><span class="row" style="justify-content:flex-end"><b class="num">${p.big} ${p.unit}</b>${arrow}</span></button>`).join("")}</div>` : S.p === 2 ? tableWork(filtered(), false) : tableWork(filtered(), true);
+                return `${header()}${sub(["Developer area"])}<div class="wrap">${crumbs(["Home", "Developer area"])}
+                    <section class="sec" style="border:none;padding-bottom:8px"><p class="label mono">DEVELOPER AREA</p><h1 class="display h-glow" style="font-size:clamp(2.4rem,6vw,4.4rem);margin-top:8px">Work, documented.</h1><p class="lead" style="margin-top:14px">Every project has a description, documentation and a live version you can open.</p></section>
+                    ${filterBar()}${body}<p class="label" style="margin-top:18px">Activity charts are sample data for the design.</p></div><div style="height:48px"></div>${footer()}`;
+            }
+            function project() {
+                const p = proj(S.proj), a = series(p.seed, PER[S.period]), c = pct(a);
+                const tabs = ["Overview", "Documentation", "Stack", "Run locally"];
+                const panes = {
+                    Overview: `<p class="lead" style="color:var(--fg2)">${p.desc}</p><div class="kv"><div><div class="label">Type</div><div class="v">${p.kind}</div></div><div><div class="label">Size</div><div class="v num">${p.big} ${p.unit}</div></div><div><div class="label">Tracking</div><div class="v">None</div></div><div><div class="label">Hosting</div><div class="v">klefas.me</div></div></div><div class="chartbox">${chart(a, S.t === "dark" && S.p === 2)}</div><div class="periods">${Object.keys(PER).map((k) => { const cc = pct(series(p.seed, PER[k])); return `<button class="period" data-act="period" data-v="${k}" aria-pressed="${S.period === k}"><b>${k}</b><span class="num ${cc >= 0 ? "up" : "down"}">${fmtPct(cc)}</span></button>`; }).join("")}</div>`,
+                    Documentation: [["1", "What it is", ph("[Placeholder] one paragraph about the project")], ["2", "How it works", ph("[Placeholder] architecture in three sentences")], ["3", "Decisions", ph("[Placeholder] what was chosen and why")]].map(([n, t, d]) => `<div class="nrow"><span class="n num">${n}</span><span class="t">${t}</span><span class="d">${d}</span></div>`).join(""),
+                    Stack: `<div class="row" style="gap:8px;margin-top:6px">${p.stack.map((s) => `<span class="chip">${s}</span>`).join("")}</div><p class="muted" style="margin-top:16px">No framework and no build step unless noted.</p>`,
+                    "Run locally": `<div class="card mono" style="font-size:13px;line-height:1.8">git clone ${ph("[repository URL]")}<br>cd ${p.id}<br>open index.html</div>`,
+                };
+                return `${header()}${sub(["Developer area", p.name])}<div class="wrap">${crumbs(["Home", "Developer area", p.name])}
+                    <div class="phead"><div class="row" style="gap:10px"><span class="ico" style="background:${p.col};width:44px;height:44px;font-size:16px">${p.sym[0]}</span><span class="chip">${p.sym}</span><span class="muted">${p.kind}</span></div>
+                    <h1 class="display h-glow" style="font-size:clamp(2.2rem,5.5vw,4rem)">${p.name}</h1>
+                    <div class="row"><a class="btn solid" href="${p.live}" target="_blank" rel="noopener">Open live ${arrow}</a><button class="btn" data-go="work">All projects</button><span class="num ${c >= 0 ? "up" : "down"}" style="font-weight:600">${fmtPct(c)} <span class="muted" style="font-weight:400">sample, ${S.period}</span></span></div></div>
+                    <div class="tabs" role="tablist">${tabs.map((t) => `<button class="tab" role="tab" aria-selected="${S.tab === t}" data-act="tab" data-v="${t}">${t}</button>`).join("")}</div>
+                    <div style="padding-block:28px 56px">${panes[S.tab]}</div>
+                    <div class="row" style="gap:8px;padding-bottom:40px"><span class="label">Other projects</span>${PROJ.filter((x) => x.id !== p.id).map((x) => `<button class="btn sm line" data-go="project" data-v="${x.id}">${x.name}</button>`).join("")}</div></div>${footer()}`;
+            }
+            function contact() {
+                return `${header()}${sub(["Contact"])}<div class="contact"><div class="l"><h1 class="display">Let's<br>talk.</h1><p style="color:#bdbdbd;max-width:36ch">Questions, ideas or a project in mind. Email is the fastest way.</p><div class="dashes" aria-hidden="true"><i></i><i></i><i></i></div></div>
+                    <div class="rt"><h2 class="h2">Get in touch</h2><div class="tabs" style="margin-top:6px" role="tablist">${["Email", "GitHub"].map((t, i) => `<button class="tab" role="tab" aria-selected="${(S.step === 1) === (i === 1)}" data-act="ctab" data-v="${i}">${t}</button>`).join("")}</div>
+                    ${S.step === 1 ? `<div class="field mono">${ME.gh.replace("https://", "")}</div><a class="btn solid wide" href="${ME.gh}" target="_blank" rel="noopener">Open GitHub</a>` : `<div class="field mono">${ME.email}</div><button class="btn solid wide" data-act="copy" data-v="${ME.email}">Copy email address</button>`}
+                    <p class="label" style="text-align:center;margin:6px 0">You can also reach me through</p><button class="btn wide line" disabled style="opacity:.55">${ph("[LinkedIn placeholder]")}</button><button class="btn wide line" data-go="work">Browse the developer area</button></div></div>${footer()}`;
+            }
+
+            /* ══ map ══ */
+            function thumb(kind) {
+                const r = (x, y, w, h, o = 0.5) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="2" fill="currentColor" opacity="${o}"/>`;
+                const body = { home: r(6, 14, 70, 7, 0.8) + r(6, 25, 44, 4) + r(6, 36, 30, 12, 0.35) + r(40, 36, 30, 12, 0.35) + r(74, 36, 30, 12, 0.35), about: r(6, 14, 50, 7, 0.8) + r(6, 28, 108, 3) + r(6, 35, 108, 3) + r(6, 42, 80, 3), work: r(6, 14, 60, 7, 0.8) + r(6, 28, 108, 6, 0.35) + r(6, 37, 108, 6, 0.35) + r(6, 46, 108, 6, 0.35), project: r(6, 12, 8, 8, 0.8) + r(18, 13, 50, 6, 0.8) + r(6, 26, 108, 22, 0.3) + r(6, 50, 30, 3), contact: r(0, 11, 60, 44, 0.85) + r(70, 20, 44, 5, 0.45) + r(70, 30, 44, 9, 0.3) + r(70, 43, 44, 9, 0.7), root: r(6, 16, 108, 8, 0.8) + r(6, 30, 20, 20, 0.4) + r(30, 30, 20, 20, 0.4) + r(54, 30, 20, 20, 0.4) + r(78, 30, 20, 20, 0.4) }[kind];
+                return `<svg viewBox="0 0 120 60" aria-hidden="true">${r(0, 0, 120, 8, 0.25)}${body}</svg>`;
+            }
+            const node = (go, v, kind, title, route, desc, cls = "") => `<button class="node ${cls}" data-go="${go}" ${v ? `data-v="${v}"` : ""} data-nid="${cls === "root" ? "root" : v ? go + "-" + v : go}"><span class="tp">${thumb(kind)}</span><span class="nt">${title}</span><span class="rt">${route}</span><span class="ds">${desc}</span></button>`;
+            function map() {
+                return `${header()}<div class="wrap mapw"><p class="label mono">SITE MAP · PROPOSAL ${S.p} · ${S.t === "dark" ? "BLACK" : "WHITE"}</p><h1 class="h2" style="margin-top:8px">Every page of the site. Click any box.</h1>
+                    <p class="muted" style="max-width:62ch;margin-top:8px">The root picks Polish or English from the browser language, so there is no language button. The personal site lives at the root; the developer area is a separate branch with its own project pages.</p>
+                    <div class="map" id="mapRoot"><svg class="lines" id="mapLines" aria-hidden="true"></svg>
+                    <div class="col">${node("home", "", "root", "klefas.me", "/", "Personal site. Language picked from the browser: /pl/ or /en/.", "root")}</div>
+                    <div class="col">${node("home", "", "home", "Home", "/pl/ · /en/", "Name, role, one line, the way into the rest.")}${node("about", "", "about", "About", "/about", "Personal story, what I do, how I work.")}${node("work", "", "work", "Developer area", "/work", "Projects with filters. The separate branch of the site.")}${node("contact", "", "contact", "Contact", "/contact", "Email, GitHub, how to reach me.")}</div>
+                    <div class="col" id="mapKids">${PROJ.map((p) => node("project", p.id, "project", p.name, `/work/${p.id}`, `${p.big} ${p.unit}. Docs, stack, run locally, open live.`)).join("")}</div></div>
+                    <div class="legend"><span>Black or White: switch the theme above</span><span>Proposal 1 leans on OKX, 2 on TradingView, 3 mixes both</span></div></div>${footer()}`;
+            }
+            function drawLines() {
+                const root = $("#mapRoot"), svg = $("#mapLines"); if (!root || !svg || getComputedStyle(svg).display === "none") return;
+                const rb = root.getBoundingClientRect(); const pos = (el, side) => { const b = el.getBoundingClientRect(); return [(side === "r" ? b.right : b.left) - rb.left, b.top + b.height / 2 - rb.top]; };
+                const q = (id) => root.querySelector(`[data-nid="${id}"]`); const links = [];
+                const rootN = q("root");
+                ["home", "about", "work", "contact"].forEach((id) => { const k = q(id); if (k) links.push([rootN, k]); });
+                const wk = q("work");
+                root.querySelectorAll("#mapKids .node").forEach((k) => links.push([wk, k]));
+                svg.setAttribute("viewBox", `0 0 ${rb.width} ${rb.height}`);
+                svg.innerHTML = links.map(([a, b]) => { const [x1, y1] = pos(a, "r"), [x2, y2] = pos(b, "l"), mx = (x1 + x2) / 2; return `<path d="M${x1},${y1} C${mx},${y1} ${mx},${y2} ${x2},${y2}"/>`; }).join("");
+            }
+
+            /* ══ render + state ══ */
+            const VIEW = { map, home, about, work, project, contact };
+            function hashOf() { return `p${S.p}-${S.t}-${S.page}${S.page === "project" ? "-" + S.proj : ""}`; }
+            function readHash() {
+                const m = location.hash.slice(1).split("-"); if (m.length < 3) return;
+                const p = +m[0].slice(1); if (PROPOSALS[p]) S.p = p; if (["dark", "light"].includes(m[1])) S.t = m[1];
+                if (VIEW[m[2]]) S.page = m[2]; if (m[2] === "project" && PROJ.some((x) => x.id === m[3])) S.proj = m[3];
+            }
+            function chrome() {
+                const g = (el, items, key, cur) => (el.innerHTML = items.map(([v, l]) => `<button class="xb" data-x="${key}" data-v="${v}" aria-pressed="${String(cur) === String(v)}">${l}</button>`).join(" "));
+                g($("#xP"), Object.entries(PROPOSALS).map(([k, v]) => [k, `${k} ${v}`]), "p", S.p);
+                g($("#xT"), [["dark", "Black"], ["light", "White"]], "t", S.t);
+                g($("#xG"), PAGES, "page", S.page);
+            }
+            function render(keep) {
+                const y = scrollY, st = $("#stage"); st.dataset.p = S.p; st.dataset.t = S.t;
+                document.documentElement.style.setProperty("--xh", document.querySelector(".xbar").offsetHeight + "px");
+                chrome(); st.innerHTML = VIEW[S.page](); try { history.replaceState(null, "", "#" + hashOf()); } catch (e) { /* hash unavailable */ }
+                if (S.page === "map") requestAnimationFrame(drawLines);
+                scrollTo(0, keep ? y : 0);
+            }
+            document.addEventListener("click", (e) => {
+                if (e.target.closest("[data-stop]")) return;
+                const x = e.target.closest("[data-x]");
+                if (x) { const k = x.dataset.x, v = x.dataset.v; if (k === "p") S.p = +v; else S[k] = v; S.step = 0; render(k !== "page"); return; }
+                const g = e.target.closest("[data-go]");
+                if (g) { S.page = g.dataset.go; if (g.dataset.v) S.proj = g.dataset.v; S.tab = "Overview"; S.step = 0; render(); return; }
+                const a = e.target.closest("[data-act]"); if (!a) return; const v = a.dataset.v;
+                switch (a.dataset.act) {
+                    case "filter": S.filter = v; render(true); break;
+                    case "period": S.period = v; render(true); break;
+                    case "tab": S.tab = v; render(true); break;
+                    case "open": S.open[v] = !S.open[v]; render(true); break;
+                    case "banner": S.banner = false; render(true); break;
+                    case "ctab": S.step = +v; render(true); break;
+                    case "scroll": { const el = document.getElementById(v); if (el) el.scrollIntoView({ behavior: "smooth", block: "start" }); S.step = ["s-about", "s-stack", "s-work", "s-contact"].indexOf(v); document.querySelectorAll(".toc button").forEach((b, i) => (i === S.step ? b.setAttribute("aria-current", "true") : b.removeAttribute("aria-current"))); break; }
+                    case "copy": try { navigator.clipboard.writeText(v).then(() => (a.textContent = "Copied"), () => (a.textContent = v)); } catch (err) { a.textContent = v; } break;
+                }
+            });
+            addEventListener("resize", () => S.page === "map" && drawLines());
+            addEventListener("hashchange", () => { readHash(); render(); });
+            if (!location.hash) S.t = matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+            readHash(); render();
+        </script>
+    </body>
+</html>
