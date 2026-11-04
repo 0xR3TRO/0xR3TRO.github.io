@@ -28,9 +28,12 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Assemble site
@@ -38,7 +41,7 @@ jobs:
         run: |
           mkdir _site
           rsync -a --exclude='/_site' --exclude='/.git' --exclude='/.github' \
-            --exclude='/docs' --exclude='/README.md' --exclude='/.htmlvalidate.json' ./ _site/
+            --exclude='/docs' --exclude='/README.md' --exclude='/SECURITY.md' --exclude='/.htmlvalidate.json' ./ _site/
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
