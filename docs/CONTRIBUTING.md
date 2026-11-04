@@ -14,6 +14,8 @@ Używamy GitHub Flow: jedna długo żyjąca gałąź `main` i krótkie gałęzie
 | `docs/`    | dokumentacja                     | `docs/readme`             |
 | `chore/`   | CI, narzędzia, zależności        | `chore/ci-validation`     |
 
+Nazwa gałęzi: `prefiks/krotki-opis` małymi literami, słowa łączone myślnikiem, najlepiej 2–3 słowa (`feat/about`, `fix/mail-link`). Bez nazw generowanych automatycznie, bez imion i dat.
+
 Zasady:
 
 1. Nie commitujemy bezpośrednio do `main`. Każda zmiana idzie przez pull request.
