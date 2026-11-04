@@ -31,3 +31,26 @@ jobs:
             [ -e "$f" ] || { echo "::error::missing $f"; missing=1; }
           done
           exit $missing
+
+  design:
+    name: design checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: design/web3
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: design/web3/package-lock.json
+      - name: Install
+        run: npm ci --no-audit --no-fund
+      - name: Lint, unit tests and stale-build check
+        run: npm run check
