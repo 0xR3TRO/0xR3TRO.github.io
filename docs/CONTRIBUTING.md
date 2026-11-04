@@ -1,37 +1,39 @@
-# Jak pracować z repozytorium
+# Working with this repository
 
-Strona jest statyczna (HTML, CSS, JS bez bundlera). Gałąź `main` to produkcja: każdy push na `main` wdraża stronę na klefas.me.
+The site is static (HTML, CSS and JS, no bundler). The `main` branch is production: every push to `main` deploys the site to klefas.me.
 
-## Gałęzie
+## Branches
 
-| Gałąź        | Rola                                     | Tworzona z | Wraca do                  |
-| ------------ | ---------------------------------------- | ---------- | ------------------------- |
-| `main`       | produkcja, tylko stabilny kod            | —          | —                         |
-| `develop`    | integracja kolejnych zmian (opcjonalna)  | `main`     | `main` (wydanie)          |
-| `feature/*`  | nowa funkcja, sekcja lub treść           | `develop`  | `develop`                 |
-| `bugfix/*`   | poprawka błędu znalezionego w `develop`  | `develop`  | `develop`                 |
-| `hotfix/*`   | pilna poprawka błędu na produkcji        | `main`     | `main`, potem do `develop`|
+| Branch      | Purpose                                  | Created from | Merged into                  |
+| ----------- | ---------------------------------------- | ------------ | ---------------------------- |
+| `main`      | production, stable code only             | -            | -                            |
+| `develop`   | integration of upcoming changes (optional) | `main`     | `main` (release)             |
+| `feature/*` | new feature, section or content          | `develop`    | `develop`                    |
+| `bugfix/*`  | fix for a bug found in `develop`         | `develop`    | `develop`                    |
+| `hotfix/*`  | urgent fix for a bug in production       | `main`       | `main`, then back to `develop` |
 
-Nazwa gałęzi: `rodzaj/krotki-opis` małymi literami, słowa łączone myślnikiem, najlepiej 2–3 słowa (`feature/about-section`, `bugfix/mail-link`, `hotfix/broken-redirect`). Bez imion, dat i nazw generowanych automatycznie.
+Branch name: `kind/short-description`, lowercase, words joined with hyphens, ideally 2-3 words (`feature/about-section`, `bugfix/mail-link`, `hotfix/broken-redirect`). No names, dates or auto-generated names.
 
-## Przebieg pracy
+## Workflow
 
-1. `feature/*` i `bugfix/*`: odgałęzienie od `develop`, pull request do `develop`, **Squash and merge**, usunięcie gałęzi.
-2. Wydanie: pull request `develop` → `main`, scalany zwykłym **merge commit** (bez squasha, żeby historia obu gałęzi się nie rozjeżdżała). Po scaleniu strona wdraża się sama.
-3. `hotfix/*`: odgałęzienie od `main`, pull request do `main` (merge commit), a następnie scalenie `main` z powrotem do `develop`.
-4. Nie commitujemy bezpośrednio do `main` ani do `develop`. CI (`CI / validate`) musi przejść przed scaleniem.
+1. `feature/*` and `bugfix/*`: branch from `develop`, open a pull request into `develop`, **Squash and merge**, delete the branch.
+2. Release: a pull request from `develop` into `main`, merged with a regular **merge commit** (no squash, so the histories of both branches do not diverge). The site deploys automatically after the merge.
+3. `hotfix/*`: branch from `main`, open a pull request into `main` (merge commit), then merge `main` back into `develop`.
+4. Never commit directly to `main` or `develop`. The CI check (`CI / validate`) must pass before merging.
 
-Jeśli `develop` okaże się zbędna, wystarczy ją usunąć: `feature/*` i `bugfix/*` będą wtedy wychodzić z `main` i wracać do `main`.
+Commit messages, pull request titles and descriptions, and documentation are written in English. Only the Polish version of the site (`/pl/`) is in Polish.
 
-## Ustawienia GitHuba do włączenia ręcznie
+If `develop` turns out to be unnecessary, delete it: `feature/*` and `bugfix/*` then branch from `main` and merge back into `main`.
 
-Tego nie da się zapisać w repozytorium. Trzeba to ustawić w **Settings**:
+## GitHub settings to enable manually
 
-- **Branches → Add rule** dla `main` i `develop`: wymagaj pull requesta oraz sprawdzenia `validate`.
-- **General → Pull Requests**: zostaw squash i merge commit, włącz "Automatically delete head branches".
-- **Pages**: źródło ustaw na "GitHub Actions". Domyślna gałąź zostaje `main`, więc nowy PR trzeba kierować na `develop` ręcznie.
+These cannot be stored in the repository. Set them in **Settings**:
 
-## Lokalna walidacja
+- **Branches -> Add rule** for `main` and `develop`: require a pull request and the `validate` check.
+- **General -> Pull Requests**: keep squash merging and merge commits enabled, and enable "Automatically delete head branches".
+- **Pages**: set the source to "GitHub Actions". The default branch stays `main`, so pull requests must be pointed at `develop` manually.
+
+## Local validation
 
 ```bash
 npx html-validate@9 --config .htmlvalidate.json "**/*.html"

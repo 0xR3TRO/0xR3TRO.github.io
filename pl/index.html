@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="pl" data-theme="dark">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; base-uri 'none'; form-action 'none'" />
+        <meta name="referrer" content="strict-origin-when-cross-origin" />
+        <title>Klefas — programista</title>
+        <meta name="description" content="Osobista wizytówka: kim jestem, czym się zajmuję i nad czym pracuję." />
+        <link rel="canonical" href="https://klefas.me/pl/" />
+        <link rel="alternate" hreflang="pl" href="https://klefas.me/pl/" />
+        <link rel="alternate" hreflang="en" href="https://klefas.me/en/" />
+        <link rel="alternate" hreflang="x-default" href="https://klefas.me/" />
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="klefas.me" />
+        <meta property="og:url" content="https://klefas.me/pl/" />
+        <meta property="og:locale" content="pl_PL" />
+        <meta property="og:title" content="Klefas — programista" />
+        <meta property="og:description" content="Osobista wizytówka: kim jestem, czym się zajmuję i nad czym pracuję." />
+        <meta name="twitter:card" content="summary" />
+        <meta name="theme-color" content="#0a0a0f" media="(prefers-color-scheme: dark)" />
+        <meta name="theme-color" content="#f0f0f5" media="(prefers-color-scheme: light)" />
+        <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%236c63ff'/><text x='50' y='70' font-size='64' font-family='monospace' font-weight='700' text-anchor='middle' fill='white'>K</text></svg>" />
+        <link rel="preload" href="/fonts/inter-100-900-latin.woff2" as="font" type="font/woff2" crossorigin />
+        <link rel="stylesheet" href="/fonts/fonts.css" />
+        <link rel="stylesheet" href="/assets/css/site.css" />
+        <script src="/assets/js/theme.js"></script>
+        <script type="application/ld+json">{"@context": "https://schema.org", "@type": "Person", "name": "Klefas", "url": "https://klefas.me/pl/", "sameAs": ["https://github.com/0xR3TRO"]}</script>
+    </head>
+    <body>
+        <a class="skip-link" href="#content">Przejdź do treści</a>
+        <canvas id="particles-canvas" aria-hidden="true"></canvas>
+
+        <nav class="navbar">
+            <a href="/pl/" class="navbar-brand">
+                <div class="navbar-logo" aria-hidden="true">K</div>
+                <span class="navbar-title">klefas.me</span>
+            </a>
+            <div class="navbar-actions">
+                <button type="button" class="theme-toggle" id="themeToggle" aria-label="Przełącz motyw" aria-pressed="true">
+                    <span class="icon-sun" aria-hidden="true">☀️</span>
+                    <span class="icon-moon" aria-hidden="true">🌙</span>
+                </button>
+            </div>
+        </nav>
+
+        <main class="main-content" id="content">
+            <section class="hero">
+                <div class="hero-badge"><span class="dot" aria-hidden="true"></span> Dostępny do rozmów</div>
+                <h1>Cześć, jestem <span class="gradient-text">Klefas</span>.</h1>
+                <p class="hero-description"><span class="todo">[DO UZUPEŁNIENIA: rola i jedno zdanie o tym, czym się zajmujesz]</span></p>
+                <div class="typing-text" aria-hidden="true">
+                    <span id="typingText" data-phrases='["git commit -m \"ship it\"", "npm run build", "console.log(\"cześć!\");"]'></span><span class="typing-cursor"></span>
+                </div>
+                <div class="hero-cta">
+                    <a href="#projects" class="btn btn-primary">Zobacz projekty</a>
+                    <a href="#contact" class="btn btn-secondary">Napisz do mnie</a>
+                </div>
+            </section>
+
+            <section class="about-section" id="about">
+                <div class="section-header"><h2>O mnie</h2></div>
+                <p class="about-text"><span class="todo">[DO UZUPEŁNIENIA: 2–3 zdania o Tobie]</span></p>
+            </section>
+
+            <section class="skills-section" id="skills">
+                <div class="section-header"><h2>Technologie</h2></div>
+                <ul class="skills-list"><li>HTML</li><li>CSS</li><li>JavaScript</li><li class="todo">[DO UZUPEŁNIENIA]</li></ul>
+            </section>
+
+            <section class="projects-section" id="projects">
+                <div class="section-header">
+                    <h2>Projekty</h2>
+                    <p>Działają w przeglądarce — bez instalacji i bez śledzenia</p>
+                </div>
+                <div class="project-grid">
+                    <a href="/arcade/" class="project-card">
+                        <span class="project-label">R3TRO Arcade</span>
+                        <span class="project-title">14 gier w przeglądarce</span>
+                        <span class="project-desc">Łamigłówki, gry zręcznościowe i klasyki — bez reklam i bez trackerów.</span>
+                        <span class="project-link">klefas.me/arcade →</span>
+                    </a>
+                    <a href="/lab/" class="project-card">
+                        <span class="project-label">R3TRO Lab</span>
+                        <span class="project-title">24 małe aplikacje</span>
+                        <span class="project-desc">Narzędzia, widgety i eksperymenty UI w czystym HTML, CSS i JavaScript.</span>
+                        <span class="project-link">klefas.me/lab →</span>
+                    </a>
+                    <a href="/budgetly/" class="project-card">
+                        <span class="project-label">Budgetly</span>
+                        <span class="project-title">Budżet domowy</span>
+                        <span class="project-desc">Wydatki, kategorie, miesięczny budżet i wykresy. Dane zostają na Twoim urządzeniu.</span>
+                        <span class="project-link">klefas.me/budgetly →</span>
+                    </a>
+                </div>
+                <p class="projects-more"><a href="https://github.com/0xR3TRO" rel="noopener">Wszystkie projekty na GitHubie →</a></p>
+            </section>
+
+            <section class="contact-section" id="contact">
+                <div class="section-header">
+                    <h2>Kontakt</h2>
+                    <p>Najszybciej e-mailem</p>
+                </div>
+                <div class="social-grid">
+                    <a href="mailto:kontakt@klefas.me" class="social-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg><span>E-mail</span></a>
+                    <a href="https://github.com/0xR3TRO" rel="noopener" class="social-link"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg><span>GitHub</span></a>
+                </div>
+            </section>
+
+            <footer class="footer">
+                <p>© 2026 klefas.me · Wszelkie prawa do treści zastrzeżone</p>
+                <div class="footer-links">
+                    <a href="https://github.com/0xR3TRO/0xR3TRO.github.io" rel="noopener">Kod strony: MIT</a>
+                </div>
+            </footer>
+        </main>
+        <script src="/assets/js/site.js" defer></script>
+    </body>
+</html>

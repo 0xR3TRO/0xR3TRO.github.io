@@ -1,17 +1,17 @@
-## Co i dlaczego
+## What and why
 
-<!-- Jedno-dwa zdania: jaka zmiana i po co. -->
+<!-- One or two sentences: what changes and why. -->
 
-## Typ zmiany
+## Type of change
 
-- [ ] `feature/*` — nowa funkcja, sekcja, treść lub dokumentacja (PR do `develop`)
-- [ ] `bugfix/*` — poprawka błędu (PR do `develop`)
-- [ ] `hotfix/*` — pilna poprawka produkcji (PR do `main`)
-- [ ] wydanie `develop` → `main`
+- [ ] `feature/*` - new feature, section, content or documentation (PR into `develop`)
+- [ ] `bugfix/*` - bug fix (PR into `develop`)
+- [ ] `hotfix/*` - urgent production fix (PR into `main`)
+- [ ] release `develop` -> `main`
 
-## Sprawdzone
+## Checked
 
-- [ ] Strona działa w motywie jasnym i ciemnym
-- [ ] Widok mobilny i desktopowy
-- [ ] Obie wersje językowe (PL i EN), jeśli zmiana dotyczy treści
-- [ ] CI przechodzi
+- [ ] The site works in light and dark theme
+- [ ] Mobile and desktop layout
+- [ ] Both language versions (PL and EN), if the change touches content
+- [ ] CI passes
