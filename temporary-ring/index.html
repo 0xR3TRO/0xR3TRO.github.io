@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#000000" />
+  <meta name="robots" content="noindex, nofollow, noarchive" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>ASCII Diamond Ring</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+    html, body {
+      width: 100%;
+      height: 100%;
+      background: #000000;
+      overflow: hidden;
+      overscroll-behavior: none;
+      touch-action: manipulation;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    canvas {
+      display: block;
+      width: 100vw;
+      height: 100dvh;
+      background: #000000;
+    }
+  </style>
+</head>
+<body>
+<canvas id="stage"></canvas>
+<script>
+(() => {
+  "use strict";
+
+  const canvas = document.getElementById("stage");
+  const ctx = canvas.getContext("2d", { alpha: false });
+
+  // Safe design box keeping the entire ring, orbital wings, starbursts, and floor reflection unclipped on any screen
+  const SAFE_W = 490;
+  const SAFE_H = 590;
+
+  // ASCII character cell pitch (4x6 logical px keeps original proportions)
+  const CELL_W = 4;
+  const CELL_H = 6;
+
+  const TAU = Math.PI * 2;
+  const PI = Math.PI;
+
+  // 3D Geometry Constants
+  const R_BAND = 0.37;
+  const BAND_R_XY = 0.044;
+  const BAND_R_Z = 0.106;
+  const GIRDLE_R = 0.18;
+  const GIRDLE_Y = 0.60;
+  const TABLE_R = 0.115;
+  const TABLE_Y = 0.70;
+  const CULET_Y = 0.44;
+
+  const BAND_KIND = 0;
+  const PRONG_KIND = 1;
+  const GEM_KIND = 2;
+
+  const DRAW = [0.3, 5.6];
+  const TURN = 12.0; // 360 deg / 12s = 30 deg/s
+
+  const SCALE = 326;
+  const CAM_Z = 3.2;
+
+  // Paul Bourke 70-char ASCII luminance ramp (dim -> bright)
+  const RAMP = " .'`^\",:;Il!i><~+_-?][}{1)(|/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$";
+  const RAMP_LEN = RAMP.length;
+
+  const MONO_FONT = '"SF Mono", "JetBrains Mono", "Menlo", "Consolas", "Liberation Mono", ui-monospace, monospace';
+
+  function makeRng(seed) {
+    let a = seed >>> 0;
+    return function () {
+      a |= 0;
+      a = (a + 0x6d2b79f5) | 0;
+      let t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  function smoothstep(x) {
+    if (x <= 0) return 0;
+    if (x >= 1) return 1;
+    return x * x * (3 - 2 * x);
+  }
+
+  function clamp(x, lo, hi) {
+    return x < lo ? lo : x > hi ? hi : x;
+  }
+
+  function normalize3(x, y, z) {
+    const l = Math.hypot(x, y, z) || 1;
+    return [x / l, y / l, z / l];
+  }
+
+  function cross3(ax, ay, az, bx, by, bz) {
+    return [
+      ay * bz - az * by,
+      az * bx - ax * bz,
+      ax * by - ay * bx
+    ];
+  }
+
+  // =========================================================================
+  // Build 3D Geometry: band(), diamond(), prongs()
+  // =========================================================================
+  function buildRingGeometry() {
+    const pos = [];
+    const nrm = [];
+    const kind = [];
+    const facetId = [];
+
+    // 1. band()
+    const nTheta = 200;
+    const nPhi = 36;
+    for (let it = 0; it < nTheta; it++) {
+      const th = (TAU * it) / nTheta;
+      const ct = Math.cos(th);
+      const st = Math.sin(th);
+      const topness = Math.max(0, st);
+      const rz = BAND_R_Z * (1 - 0.16 * topness * topness * topness);
+      const rxy = BAND_R_XY;
+
+      for (let ip = 0; ip < nPhi; ip++) {
+        const ph = (TAU * ip) / nPhi;
+        const cp = Math.cos(ph);
+        const sp = Math.sin(ph);
+
+        const rad = R_BAND + rxy * cp;
+        const px = rad * ct;
+        const py = rad * st;
+        const pz = rz * sp;
+
+        const [nx, ny, nz] = normalize3((cp * ct) / rxy, (cp * st) / rxy, sp / rz);
+        pos.push(px, py, pz);
+        nrm.push(nx, ny, nz);
+        kind.push(BAND_KIND);
+        facetId.push(-1);
+      }
+    }
+
+    // 2. prongs()
+    for (let i = 0; i < 4; i++) {
+      const a = (TAU * (i + 0.5)) / 4;
+      const ca = Math.cos(a);
+      const sa = Math.sin(a);
+      const bx = 0.08 * ca;
+      const by = R_BAND + 0.02;
+      const bz = 0.08 * sa;
+
+      const tx = (GIRDLE_R + 0.015) * ca;
+      const ty = TABLE_Y - 0.03;
+      const tz = (GIRDLE_R + 0.015) * sa;
+
+      const [dx, dy, dz] = normalize3(tx - bx, ty - by, tz - bz);
+      const sRaw = cross3(dx, dy, dz, 0, 0, 1);
+      const [sx, sy, sz] = normalize3(sRaw[0], sRaw[1], sRaw[2]);
+      const [wx, wy, wz] = cross3(sx, sy, sz, dx, dy, dz);
+
+      const nu = 40;
+      const nphi = 18;
+      for (let iu = 0; iu < nu; iu++) {
+        const u = iu / (nu - 1);
+        const cx_ = bx + u * (tx - bx);
+        const cy_ = by + u * (ty - by);
+        const cz_ = bz + u * (tz - bz);
+        for (let ip = 0; ip < nphi; ip++) {
+          const phi = (TAU * ip) / nphi;
+          const cp = Math.cos(phi);
+          const sp = Math.sin(phi);
+          const nx = cp * sx + sp * wx;
+          const ny = cp * sy + sp * wy;
+          const nz = cp * sz + sp * wz;
+
+          pos.push(cx_ + nx * 0.022, cy_ + ny * 0.022, cz_ + nz * 0.022);
+          nrm.push(nx, ny, nz);
+          kind.push(PRONG_KIND);
+          facetId.push(-1);
+        }
+      }
+    }
+
+    // 3. diamond() — 64 facets with flat normals
+    const facetNormals = [];
+    const facetCenters = [];
+    let k = 0;
+
+    function addFacet(ax, ay, az, bx, by, bz, cx_, cy_, cz_, nx, ny, nz) {
+      const [nnx, nny, nnz] = normalize3(nx, ny, nz);
+      facetNormals.push(nnx, nny, nnz);
+      facetCenters.push((ax + bx + cx_) / 3, (ay + by + cy_) / 3, (az + bz + cz_) / 3);
+
+      for (let iu = 0; iu < 16; iu++) {
+        const u = iu / 15;
+        for (let iv = 0; iv < 16; iv++) {
+          const v = iv / 15;
+          if (u + v > 1.000001) continue;
+          const px = ax + (bx - ax) * u + (cx_ - ax) * v;
+          const py = ay + (by - ay) * u + (cy_ - ay) * v;
+          const pz = az + (bz - az) * u + (cz_ - az) * v;
+          pos.push(px, py, pz);
+          nrm.push(nnx, nny, nnz);
+          kind.push(GEM_KIND);
+          facetId.push(k);
+        }
+      }
+      k++;
+    }
+
+    const m = 16;
+    for (let i = 0; i < m; i++) {
+      const a0 = (TAU * i) / m;
+      const a1 = (TAU * (i + 1)) / m;
+
+      const g0x = GIRDLE_R * Math.cos(a0), g0y = GIRDLE_Y, g0z = GIRDLE_R * Math.sin(a0);
+      const g1x = GIRDLE_R * Math.cos(a1), g1y = GIRDLE_Y, g1z = GIRDLE_R * Math.sin(a1);
+      const t0x = TABLE_R * Math.cos(a0), t0y = TABLE_Y, t0z = TABLE_R * Math.sin(a0);
+      const t1x = TABLE_R * Math.cos(a1), t1y = TABLE_Y, t1z = TABLE_R * Math.sin(a1);
+
+      let crown = cross3(g1x - g0x, g1y - g0y, g1z - g0z, t0x - g0x, t0y - g0y, t0z - g0z);
+      const cs = Math.sign(crown[1]) || 1;
+      crown = [crown[0] * cs, crown[1] * cs, crown[2] * cs];
+      addFacet(g0x, g0y, g0z, g1x, g1y, g1z, t0x, t0y, t0z, crown[0], crown[1], crown[2]);
+      addFacet(g1x, g1y, g1z, t1x, t1y, t1z, t0x, t0y, t0z, crown[0], crown[1] * 1.15, crown[2]);
+
+      let pav = cross3(0 - g0x, CULET_Y - g0y, 0 - g0z, g1x - g0x, g1y - g0y, g1z - g0z);
+      const ps = -(Math.sign(pav[1]) || 1);
+      pav = [pav[0] * ps, pav[1] * ps, pav[2] * ps];
+      addFacet(g0x, g0y, g0z, g1x, g1y, g1z, 0, CULET_Y, 0, pav[0], pav[1], pav[2]);
+
+      addFacet(0, TABLE_Y, 0, t0x, t0y, t0z, t1x, t1y, t1z, 0, 1, 0);
+    }
+
+    const totalPts = kind.length;
+    const rng = makeRng(1);
+    const seed = new Float32Array(totalPts * 3);
+    for (let i = 0; i < seed.length; i++) {
+      seed[i] = rng();
+    }
+
+    const order = new Float32Array(totalPts);
+    for (let i = 0; i < totalPts; i++) {
+      const px = pos[i * 3];
+      const py = pos[i * 3 + 1];
+      const kd = kind[i];
+      if (kd === BAND_KIND) {
+        let ang = Math.atan2(py, px) + PI / 2;
+        ang = Math.atan2(Math.sin(ang), Math.cos(ang));
+        order[i] = Math.abs(ang) / PI;
+      } else if (kd === PRONG_KIND) {
+        order[i] = 1.0 + ((py - R_BAND) / (TABLE_Y - R_BAND)) * 0.25;
+      } else {
+        order[i] = 1.25 + ((py - CULET_Y) / (TABLE_Y - CULET_Y)) * 0.45;
+      }
+    }
+
+    return {
+      totalPts,
+      pos: new Float32Array(pos),
+      nrm: new Float32Array(nrm),
+      kind: new Uint8Array(kind),
+      facetId: new Int16Array(facetId),
+      numFacets: k,
+      facetNormals: new Float32Array(facetNormals),
+      facetCenters: new Float32Array(facetCenters),
+      seed,
+      order
+    };
+  }
+
+  const RING = buildRingGeometry();
+
+  // =========================================================================
+  // Wing Orbital Ellipses (stored relative to ring center cx, cy)
+  // =========================================================================
+  const WING_SAMPLES = 440;
+  const WING_PTS = [];
+  (function initWings() {
+    const rng = makeRng(42);
+    const a = 240;
+    const b = 59;
+    const tiltRad = (32.5 * PI) / 180;
+    for (const sign of [1, -1]) {
+      const r = sign * tiltRad;
+      const cr = Math.cos(r);
+      const sr = Math.sin(r);
+      for (let i = 0; i < WING_SAMPLES; i++) {
+        const u = (TAU * i) / WING_SAMPLES;
+        const ex = a * Math.cos(u);
+        const ey = b * Math.sin(u);
+        const tx = -a * Math.sin(u);
+        const ty = b * Math.cos(u);
+        const nLen = Math.hypot(tx, ty) || 1;
+        const nxLocal = -ty / nLen;
+        const nyLocal = tx / nLen;
+        const nxScreen = nxLocal * cr - nyLocal * sr;
+        const nyScreen = nxLocal * sr + nyLocal * cr;
+        const perpDist = (rng() + rng() - 1) * 9.5;
+        const dx = ex * cr - ey * sr + nxScreen * perpDist;
+        const dy = -104 + ex * sr + ey * cr + nyScreen * perpDist;
+        const radialAtten = clamp(1 - Math.abs(perpDist) / 11.5, 0.2, 1);
+        WING_PTS.push({
+          dx,
+          dy,
+          u,
+          sign,
+          radialAtten,
+          jitter: rng(),
+          phase: rng() * TAU
+        });
+      }
+    }
+  })();
+
+  // =========================================================================
+  // Rose Petals Particle System
+  // =========================================================================
+  const MAX_PETALS = 180;
+  const PETAL_GLYPHS = [".", "·", ",", "'", "`", "-", "~", "*", "+"];
+  let petals = [];
+  let lastSimTime = 0;
+  let petalRng = makeRng(2026);
+  let petalSpawnAccum = 0;
+
+  function resetPetals() {
+    petals = [];
+    lastSimTime = 0;
+    petalRng = makeRng(2026);
+    petalSpawnAccum = 0;
+  }
+
+  function stepPetals(dt, logicalW, logicalH, cy) {
+    if (dt <= 0) return;
+    if (lastSimTime >= 2.8) {
+      petalSpawnAccum += dt * 7.5;
+      while (petalSpawnAccum >= 1) {
+        petalSpawnAccum -= 1;
+        if (petals.length >= MAX_PETALS) {
+          const idx = petals.findIndex((p) => p.landed);
+          if (idx >= 0) petals.splice(idx, 1);
+          else petals.shift();
+        }
+        const spawnTop = Math.max(8, cy - 335);
+        petals.push({
+          xFrac: 0.02 + petalRng() * 0.96,
+          vx: (petalRng() - 0.5) * 14,
+          y: spawnTop + petalRng() * 44,
+          vy: 6 + petalRng() * 14,
+          drag: 0.45 + petalRng() * 0.35,
+          flutterAmp: 16 + petalRng() * 28,
+          flutterFreq: 1.4 + petalRng() * 2.2,
+          phase: petalRng() * TAU,
+          glyph: PETAL_GLYPHS[Math.floor(petalRng() * PETAL_GLYPHS.length)],
+          alpha: 0.24 + petalRng() * 0.44,
+          floorOffset: 152 + petalRng() * 110,
+          landed: false,
+          warm: petalRng() < 0.25
+        });
+      }
+    }
+
+    const g = 34;
+    const dampX = Math.pow(0.28, dt);
+    const invW = 1 / Math.max(1, logicalW);
+    for (let i = 0; i < petals.length; i++) {
+      const p = petals[i];
+      if (p.landed) continue;
+      p.vy += g * dt;
+      p.vy *= Math.pow(p.drag, dt);
+      p.vx = p.vx * dampX + Math.sin(lastSimTime * p.flutterFreq + p.phase) * p.flutterAmp * dt;
+      p.xFrac += p.vx * dt * invW;
+      p.y += p.vy * dt;
+
+      if (p.xFrac < 0.02) p.xFrac += 0.96;
+      if (p.xFrac > 0.98) p.xFrac -= 0.96;
+
+      const floorY = Math.min(logicalH - 16, cy + p.floorOffset);
+      if (p.y >= floorY) {
+        p.y = floorY;
+        p.vx = 0;
+        p.vy = 0;
+        p.landed = true;
+      }
+    }
+    lastSimTime += dt;
+  }
+
+  function advancePetalsTo(targetT, logicalW, logicalH, cy) {
+    if (targetT < lastSimTime - 0.05) {
+      resetPetals();
+    }
+    const maxStep = 1 / 30;
+    while (lastSimTime < targetT - 0.0005) {
+      const dt = Math.min(maxStep, targetT - lastSimTime);
+      stepPetals(dt, logicalW, logicalH, cy);
+    }
+  }
+
+  // =========================================================================
+  // Dynamic ASCII Grid & Bloom Buffers
+  // =========================================================================
+  let gridCols = 0;
+  let gridRows = 0;
+  let gridSize = 0;
+  let zBuf, lumBuf, charIdxBuf, tintBuf, kindBuf;
+
+  function ensureGridBuffers(cols, rows) {
+    const sz = cols * rows;
+    if (sz > gridSize) {
+      zBuf = new Float32Array(sz);
+      lumBuf = new Float32Array(sz);
+      charIdxBuf = new Int16Array(sz);
+      tintBuf = new Uint8Array(sz);
+      kindBuf = new Uint8Array(sz);
+      gridSize = sz;
+    }
+    gridCols = cols;
+    gridRows = rows;
+    zBuf.fill(-1e9, 0, sz);
+    lumBuf.fill(0, 0, sz);
+    charIdxBuf.fill(0, 0, sz);
+    tintBuf.fill(0, 0, sz);
+    kindBuf.fill(0, 0, sz);
+  }
+
+  let glowCanvas1 = null;
+  let glowCtx1 = null;
+  let glowCanvas2 = null;
+  let glowCtx2 = null;
+  function ensureGlowBuffers(cols, rows) {
+    const g1W = Math.max(1, cols);
+    const g1H = Math.max(1, Math.ceil(rows * 1.5));
+    const g2W = Math.max(1, Math.ceil(g1W * 0.5));
+    const g2H = Math.max(1, Math.ceil(g1H * 0.5));
+    if (!glowCanvas1) {
+      glowCanvas1 = document.createElement("canvas");
+      glowCtx1 = glowCanvas1.getContext("2d");
+      glowCanvas2 = document.createElement("canvas");
+      glowCtx2 = glowCanvas2.getContext("2d");
+    }
+    if (glowCanvas1.width !== g1W || glowCanvas1.height !== g1H) {
+      glowCanvas1.width = g1W;
+      glowCanvas1.height = g1H;
+    }
+    if (glowCanvas2.width !== g2W || glowCanvas2.height !== g2H) {
+      glowCanvas2.width = g2W;
+      glowCanvas2.height = g2H;
+    }
+    return { g1W, g1H, g2W, g2H };
+  }
+
+  // =========================================================================
+  // Pre-baked HiDPI Glyph Atlas (rebuilt automatically on DPR/scale change)
+  // =========================================================================
+  let atlasCanvas = null;
+  let atlasScale = 0;
+  let atlasCellW = 0;
+  let atlasCellH = 0;
+  let atlasPad = 0;
+  let atlasSlotW = 0;
+  let atlasSlotH = 0;
+
+  const TINT_COLORS = ["#ffffff", "#fff2d6", "#dceeff"];
+  const ALL_CHARS = RAMP + "·,~*+-";
+  const CHAR_TO_ATLAS = new Map();
+  for (let i = 0; i < ALL_CHARS.length; i++) {
+    if (!CHAR_TO_ATLAS.has(ALL_CHARS[i])) {
+      CHAR_TO_ATLAS.set(ALL_CHARS[i], i);
+    }
+  }
+
+  function ensureGlyphAtlas(pixelScale) {
+    const targetScale = Math.max(1, Math.min(pixelScale, 4.5));
+    if (atlasCanvas && Math.abs(atlasScale - targetScale) < 0.02) return;
+
+    atlasScale = targetScale;
+    atlasPad = Math.ceil(2 * targetScale);
+    atlasCellW = Math.ceil(CELL_W * targetScale);
+    atlasCellH = Math.ceil(CELL_H * targetScale);
+    atlasSlotW = atlasCellW + atlasPad * 2;
+    atlasSlotH = atlasCellH + atlasPad * 2;
+
+    const nChars = ALL_CHARS.length;
+    if (!atlasCanvas) atlasCanvas = document.createElement("canvas");
+    atlasCanvas.width = atlasSlotW * nChars;
+    atlasCanvas.height = atlasSlotH * TINT_COLORS.length;
+
+    const actx = atlasCanvas.getContext("2d");
+    actx.clearRect(0, 0, atlasCanvas.width, atlasCanvas.height);
+    actx.textAlign = "center";
+    actx.textBaseline = "middle";
+    const fontSize = Math.max(5.5, CELL_H * 1.09 * targetScale);
+    actx.font = `600 ${fontSize.toFixed(2)}px ${MONO_FONT}`;
+
+    for (let tIdx = 0; tIdx < TINT_COLORS.length; tIdx++) {
+      actx.fillStyle = TINT_COLORS[tIdx];
+      const cy = tIdx * atlasSlotH + atlasSlotH * 0.52;
+      for (let c = 0; c < nChars; c++) {
+        const ch = ALL_CHARS[c];
+        if (ch === " ") continue;
+        actx.fillText(ch, c * atlasSlotW + atlasSlotW * 0.5, cy);
+      }
+    }
+  }
+
+  // =========================================================================
+  // Core Frame Simulation & Full-Screen Ring Renderer
+  // =========================================================================
+  const glintsArray = [];
+
+  function renderFrame(t, viewportW, viewportH, dpr) {
+    // Fit the complete ring artwork (diamond, band, wings, starbursts, reflection) tightly and cleanly edge-to-edge
+    const logicalScale = Math.min(viewportW / SAFE_W, viewportH / SAFE_H);
+    const logicalW = viewportW / logicalScale;
+    const logicalH = viewportH / logicalScale;
+    const cols = Math.ceil(logicalW / CELL_W);
+    const rows = Math.ceil(logicalH / CELL_H);
+
+    const cx = logicalW * 0.5;
+    const cy = logicalH * 0.5 + 34;
+
+    advancePetalsTo(t, logicalW, logicalH, cy);
+    ensureGridBuffers(cols, rows);
+    glintsArray.length = 0;
+
+    // 1. Lights & rotation
+    const [kx, ky, kz] = normalize3(0.0, 0.8, 0.6);
+    const [rx, ry, rz] = normalize3(Math.cos(t * 0.9), 0.5, Math.sin(t * 0.9));
+    const phiSpk = (t - 12.0) * (TAU / 7.0);
+    const [sx_, sy_, sz_] = normalize3(
+      0.45 * Math.sin(phiSpk),
+      0.56 + 0.10 * Math.cos(phiSpk),
+      0.20 - 1.05 * Math.cos(phiSpk)
+    );
+
+    const [hkx, hky, hkz] = normalize3(kx, ky, kz + 1);
+    const [hrx, hry, hrz] = normalize3(rx, ry, rz + 1);
+    const [hsx, hsy, hsz] = normalize3(sx_, sy_, sz_ + 1);
+
+    const spinAngle = (TAU * Math.max(t - DRAW[1] - 0.6, 0)) / TURN;
+    const cosA = Math.cos(spinAngle);
+    const sinA = Math.sin(spinAngle);
+
+    // 2. Diamond facet glints
+    const facetGlint = new Float32Array(RING.numFacets);
+    for (let f = 0; f < RING.numFacets; f++) {
+      const fnx = RING.facetNormals[f * 3];
+      const fny = RING.facetNormals[f * 3 + 1];
+      const fnz = RING.facetNormals[f * 3 + 2];
+
+      const rnx = cosA * fnx + sinA * fnz;
+      const rny = fny;
+      const rnz = -sinA * fnx + cosA * fnz;
+
+      const dKey = Math.abs(rnx * hkx + rny * hky + rnz * hkz);
+      const dRim = Math.abs(rnx * hrx + rny * hry + rnz * hrz);
+      const dSpk = Math.abs(rnx * hsx + rny * hsy + rnz * hsz);
+
+      const peak = Math.max(dKey, dRim, dSpk);
+      if (peak > 0.942) {
+        const strength = smoothstep((peak - 0.942) / 0.058);
+        facetGlint[f] = 0.25 + 0.75 * strength;
+      }
+    }
+
+    const drawHead = ((t - DRAW[0]) / (DRAW[1] - DRAW[0])) * 1.76;
+
+    // 3. Project & shade all RING points
+    const total = RING.totalPts;
+    const pos = RING.pos;
+    const nrm = RING.nrm;
+    const kind = RING.kind;
+    const fId = RING.facetId;
+    const seed = RING.seed;
+    const order = RING.order;
+
+    let frontierSparkCount = 0;
+
+    for (let i = 0; i < total; i++) {
+      const ord = order[i];
+      const k = smoothstep((drawHead - ord) / 0.06);
+      if (k <= 0.002) continue;
+
+      const i3 = i * 3;
+      const s0 = seed[i3];
+      const s1 = seed[i3 + 1];
+      const s2 = seed[i3 + 2];
+
+      const px0 = pos[i3];
+      const py0 = pos[i3 + 1];
+      const pz0 = pos[i3 + 2];
+      let px = cosA * px0 + sinA * pz0;
+      let py = py0;
+      let pz = -sinA * px0 + cosA * pz0;
+
+      const nx0 = nrm[i3];
+      const ny0 = nrm[i3 + 1];
+      const nz0 = nrm[i3 + 2];
+      const nx = cosA * nx0 + sinA * nz0;
+      const ny = ny0;
+      const nz = -sinA * nx0 + cosA * nz0;
+
+      if (k < 0.999) {
+        const sc = (1 - k) * (1 - k);
+        px += (s0 - 0.5) * 0.88 * sc;
+        py += ((s1 - 0.5) * 0.54 + 0.1) * sc;
+        pz += (s2 - 0.5) * 0.45 * sc;
+      }
+
+      const persp = CAM_Z / (CAM_Z - pz);
+      const sx = cx + px * SCALE * persp;
+      const sy = cy - py * SCALE * persp;
+
+      const col = Math.floor(sx / CELL_W);
+      const row = Math.floor(sy / CELL_H);
+      if (col < 0 || col >= gridCols || row < 0 || row >= gridRows) continue;
+
+      const idx = row * gridCols + col;
+      const kd = kind[i];
+      const nDotV = nz;
+      if (kd !== GEM_KIND && nDotV < -0.05) continue;
+
+      const depthVal = pz + (kd === GEM_KIND && nDotV > 0 ? 0.02 : 0);
+      if (depthVal < zBuf[idx] - 0.004) continue;
+
+      const diffKey = Math.max(0, nx * kx + ny * ky + nz * kz);
+      const diffRim = Math.max(0, nx * rx + ny * ry + nz * rz);
+      const fresnel = Math.pow(1 - clamp(Math.abs(nDotV), 0, 1), 2.2);
+
+      let lum = 0;
+      let tint = 0;
+
+      if (kd === BAND_KIND || kd === PRONG_KIND) {
+        const specKey = Math.pow(Math.max(0, nx * hkx + ny * hky + nz * hkz), 28);
+        const specRim = Math.pow(Math.max(0, nx * hrx + ny * hry + nz * hrz), 22);
+        lum = 0.14 + 0.36 * diffKey + 0.17 * diffRim + 0.56 * specKey + 0.38 * specRim + 0.19 * fresnel;
+        if (kd === PRONG_KIND) lum *= 1.06;
+
+        if (specKey + specRim > 0.82 && s0 > 0.985 && glintsArray.length < 18) {
+          glintsArray.push({ x: sx, y: sy, len: 26 + s1 * 30, alpha: 0.82, warm: false });
+        }
+      } else {
+        const f = fId[i];
+        const fg = facetGlint[f];
+        const internal = Math.pow(Math.abs(nx * hkx + ny * hky + nz * hkz), 10);
+        const rimF = Math.pow(Math.abs(nx * hrx + ny * hry + nz * hrz), 12);
+        lum = 0.16 + 0.34 * Math.abs(diffKey) + 0.28 * internal + 0.24 * rimF + 0.18 * fresnel + fg * 0.65;
+
+        if (fg > 0.42 && s1 > 0.978 && glintsArray.length < 22) {
+          glintsArray.push({
+            x: sx,
+            y: sy,
+            len: 24 + fg * 36,
+            alpha: 0.72 + fg * 0.28,
+            warm: s2 < 0.5
+          });
+        }
+        if (fg > 0.35 || lum > 0.72) {
+          if (s2 < 0.22) tint = 1;
+          else if (s2 > 0.78) tint = 2;
+        }
+      }
+
+      const frontier = Math.abs(drawHead - ord) < 0.035 && t <= DRAW[1] + 0.15;
+      if (frontier) {
+        lum += 0.32;
+        if (s0 > 0.975 && frontierSparkCount < 10) {
+          frontierSparkCount++;
+          glintsArray.push({
+            x: sx,
+            y: sy,
+            len: 24 + s1 * 32,
+            alpha: 0.78,
+            warm: s2 < 0.4
+          });
+        }
+      }
+
+      lum = clamp(lum * k + (s0 - 0.5) * 0.06 * k, 0, 1.05);
+      if (lum < 0.10) continue;
+
+      const normLum = clamp(lum, 0, 1);
+      const rIdx = Math.min(RAMP_LEN - 1, Math.max(1, Math.floor(normLum * (RAMP_LEN - 1))));
+
+      zBuf[idx] = depthVal;
+      lumBuf[idx] = normLum;
+      charIdxBuf[idx] = CHAR_TO_ATLAS.get(RAMP[rIdx]) || 1;
+      tintBuf[idx] = tint;
+      kindBuf[idx] = 1;
+    }
+
+    // Periodic vertical crown starbursts
+    if (t > DRAW[0] + 0.3) {
+      for (let f = 0; f < RING.numFacets; f++) {
+        if (facetGlint[f] > 0.6 && (f % 4 === 3)) {
+          const fcx = RING.facetCenters[f * 3];
+          const fcy = RING.facetCenters[f * 3 + 1];
+          const fcz = RING.facetCenters[f * 3 + 2];
+          const rcx = cosA * fcx + sinA * fcz;
+          const rcz = -sinA * fcx + cosA * fcz;
+          const p = CAM_Z / (CAM_Z - rcz);
+          const sx = cx + rcx * SCALE * p;
+          const sy = cy - fcy * SCALE * p;
+          if (glintsArray.length < 24) {
+            glintsArray.push({
+              x: sx,
+              y: sy,
+              len: 32 + facetGlint[f] * 34,
+              alpha: 0.72 + facetGlint[f] * 0.28,
+              warm: (f % 8 === 3)
+            });
+          }
+        }
+      }
+    }
+
+    // 4. Shockwave Ring Burst (t = 5.56s .. 6.26s)
+    if (t >= DRAW[1] - 0.04 && t <= DRAW[1] + 0.66) {
+      const dtWave = t - (DRAW[1] - 0.04);
+      const waveFade = 1 - smoothstep(dtWave / 0.68);
+      const rOuter = 450 * Math.sqrt(dtWave / 0.62);
+      const waveCx = cx;
+      const waveCy = cy - 77;
+      const ringRadii = [rOuter, rOuter * 0.87, rOuter * 0.74];
+      const ringWeights = [1.0, 0.75, 0.48];
+      const waveChars = "&%$#*+:.";
+
+      const rMin = Math.max(0, Math.floor((waveCy - rOuter - 16) / CELL_H));
+      const rMax = Math.min(gridRows - 1, Math.ceil((waveCy + rOuter + 16) / CELL_H));
+      const cMin = Math.max(0, Math.floor((waveCx - rOuter - 16) / CELL_W));
+      const cMax = Math.min(gridCols - 1, Math.ceil((waveCx + rOuter + 16) / CELL_W));
+
+      for (let r = rMin; r <= rMax; r++) {
+        const py = r * CELL_H + CELL_H * 0.5;
+        const dy = py - waveCy;
+        for (let c = cMin; c <= cMax; c++) {
+          const idx = r * gridCols + c;
+          if (kindBuf[idx] === 1) continue;
+          const px = c * CELL_W + CELL_W * 0.5;
+          const dx = px - waveCx;
+          const dist = Math.hypot(dx, dy);
+
+          let bestW = 0;
+          for (let w = 0; w < 3; w++) {
+            const d = Math.abs(dist - ringRadii[w]);
+            if (d < 13) {
+              const val = (1 - d / 13) * ringWeights[w];
+              if (val > bestW) bestW = val;
+            }
+          }
+          if (bestW <= 0.05) continue;
+
+          const hash = ((c * 73856093) ^ (r * 19349663) ^ Math.floor(t * 30) * 83492791) >>> 0;
+          if ((hash % 100) / 100 > bestW * 0.88 + 0.12) continue;
+
+          const l = bestW * waveFade * 0.85;
+          if (l > lumBuf[idx]) {
+            const ch = waveChars[hash % waveChars.length];
+            lumBuf[idx] = l;
+            charIdxBuf[idx] = CHAR_TO_ATLAS.get(ch) || 1;
+            tintBuf[idx] = 0;
+            kindBuf[idx] = 2;
+          }
+        }
+      }
+    }
+
+    // 5. Dual Tilted Orbital Ellipses / Wings (t > 6.20s)
+    if (t > 6.2) {
+      const wingAlpha = smoothstep((t - 6.2) / 1.1);
+      const wingChars = ["%", "*", "+", ":", "·", "."];
+      for (let i = 0; i < WING_PTS.length; i++) {
+        const wp = WING_PTS[i];
+        const col = Math.round((cx + wp.dx) / CELL_W);
+        const row = Math.round((cy + wp.dy) / CELL_H);
+        if (col < 0 || col >= gridCols || row < 0 || row >= gridRows) continue;
+        const idx = row * gridCols + col;
+        if (kindBuf[idx] === 1) continue;
+
+        const pulse1 = Math.pow(0.5 + 0.5 * Math.cos(wp.u - t * 1.45 * wp.sign), 3);
+        const pulse2 = Math.pow(0.5 + 0.5 * Math.cos(wp.u + PI - t * 1.45 * wp.sign), 3);
+        const twinkle = 0.5 + 0.5 * Math.sin(t * 4.5 + wp.phase);
+        const densityMask = wp.jitter * 0.55 + twinkle * 0.45;
+        if (densityMask < 0.34 && pulse1 + pulse2 < 0.48) continue;
+
+        const l = (0.055 + 0.16 * Math.max(pulse1, pulse2) + 0.055 * twinkle) * wp.radialAtten * wingAlpha;
+        if (l > lumBuf[idx]) {
+          const ci = Math.min(wingChars.length - 1, Math.floor((1 - clamp(l * 3.4, 0, 0.99)) * wingChars.length));
+          lumBuf[idx] = l;
+          charIdxBuf[idx] = CHAR_TO_ATLAS.get(wingChars[ci]) || 1;
+          tintBuf[idx] = 0;
+          kindBuf[idx] = 2;
+        }
+      }
+    }
+
+    // 6. Rose Petals (background falling + resting on floor)
+    for (let i = 0; i < petals.length; i++) {
+      const p = petals[i];
+      const col = Math.floor((p.xFrac * logicalW) / CELL_W);
+      const row = Math.floor(p.y / CELL_H);
+      if (col < 0 || col >= gridCols || row < 0 || row >= gridRows) continue;
+      const idx = row * gridCols + col;
+      if (kindBuf[idx] === 1) continue;
+      const fade = p.landed ? p.alpha * 0.85 : p.alpha;
+      if (fade > lumBuf[idx]) {
+        lumBuf[idx] = fade;
+        charIdxBuf[idx] = CHAR_TO_ATLAS.get(p.glyph) || 1;
+        tintBuf[idx] = p.warm ? 1 : 0;
+        kindBuf[idx] = 2;
+      }
+    }
+
+    // =========================================================================
+    // Paint Canvas Full-Screen at Native Retina Resolution
+    // =========================================================================
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.fillStyle = "#000000";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    const pixelScale = logicalScale * dpr;
+    ensureGlyphAtlas(pixelScale);
+    const { g1W, g1H, g2W, g2H } = ensureGlowBuffers(gridCols, gridRows);
+
+    ctx.save();
+    ctx.scale(pixelScale, pixelScale);
+
+    const padL = atlasPad / atlasScale;
+    const slotLogicalW = atlasSlotW / atlasScale;
+    const slotLogicalH = atlasSlotH / atlasScale;
+
+    // 7. Soft Floor Reflection directly beneath the ring
+    const mirrorY = cy + 164;
+    const srcRowStart = Math.max(0, Math.floor((cy + 48) / CELL_H));
+    const srcRowEnd = Math.min(gridRows - 1, Math.ceil((cy + 152) / CELL_H));
+    const refColMin = Math.max(0, Math.floor((cx - 148) / CELL_W));
+    const refColMax = Math.min(gridCols - 1, Math.ceil((cx + 148) / CELL_W));
+
+    for (let srcRow = srcRowStart; srcRow <= srcRowEnd; srcRow++) {
+      const srcPy = srcRow * CELL_H;
+      const dstPy = mirrorY + (mirrorY - srcPy) * 0.85;
+      if (dstPy < mirrorY + 18 || dstPy > logicalH - 8) continue;
+      const fade = 0.24 * Math.exp(-(dstPy - (mirrorY + 18)) / 34);
+      if (fade < 0.02) continue;
+      const rowBase = srcRow * gridCols;
+      for (let col = refColMin; col <= refColMax; col++) {
+        const idx = rowBase + col;
+        if (kindBuf[idx] !== 1) continue;
+        const l = lumBuf[idx] * fade;
+        if (l < 0.02) continue;
+        const aIdx = charIdxBuf[idx];
+        ctx.globalAlpha = clamp(l, 0, 1);
+        ctx.drawImage(
+          atlasCanvas,
+          aIdx * atlasSlotW,
+          0,
+          atlasSlotW,
+          atlasSlotH,
+          col * CELL_W - padL,
+          dstPy - padL,
+          slotLogicalW,
+          slotLogicalH
+        );
+      }
+    }
+
+    // 8. Draw Full-Screen ASCII Scene (Ring, Wings, Shockwave, Petals) + Bloom Splats
+    glowCtx1.clearRect(0, 0, g1W, g1H);
+    for (let row = 0; row < gridRows; row++) {
+      const py = row * CELL_H;
+      const rowBase = row * gridCols;
+      for (let col = 0; col < gridCols; col++) {
+        const idx = rowBase + col;
+        const l = lumBuf[idx];
+        if (l <= 0.02) continue;
+        const aIdx = charIdxBuf[idx];
+        const tIdx = tintBuf[idx];
+        ctx.globalAlpha = clamp(l, 0, 1);
+        ctx.drawImage(
+          atlasCanvas,
+          aIdx * atlasSlotW,
+          tIdx * atlasSlotH,
+          atlasSlotW,
+          atlasSlotH,
+          col * CELL_W - padL,
+          py - padL,
+          slotLogicalW,
+          slotLogicalH
+        );
+        if (kindBuf[idx] === 1 && l > 0.48) {
+          const b = clamp((l - 0.44) * 1.35, 0, 1);
+          glowCtx1.fillStyle = tIdx === 1 ? `rgba(255,240,210,${b})` : tIdx === 2 ? `rgba(218,238,255,${b})` : `rgba(255,255,255,${b})`;
+          glowCtx1.fillRect(col, row * 1.5, 1.3, 1.8);
+        }
+      }
+    }
+
+    // 9. Atmospheric Optical Bloom Pass
+    glowCtx2.clearRect(0, 0, g2W, g2H);
+    glowCtx2.imageSmoothingEnabled = true;
+    glowCtx2.drawImage(glowCanvas1, 0, 0, g2W, g2H);
+    ctx.save();
+    ctx.globalCompositeOperation = "lighter";
+    ctx.imageSmoothingEnabled = true;
+    ctx.globalAlpha = 0.16;
+    ctx.drawImage(glowCanvas1, 0, 0, gridCols * CELL_W, gridRows * CELL_H);
+    ctx.globalAlpha = 0.15;
+    ctx.drawImage(glowCanvas2, 0, 0, gridCols * CELL_W, gridRows * CELL_H);
+    ctx.restore();
+
+    // 10. Starburst Hairline Glints
+    if (glintsArray.length > 0) {
+      ctx.save();
+      ctx.globalCompositeOperation = "lighter";
+      ctx.lineWidth = 1.2;
+      for (let i = 0; i < glintsArray.length; i++) {
+        const g = glintsArray[i];
+        const col = g.warm ? "255, 240, 212" : "242, 248, 255";
+        const vLen = g.len * 1.25;
+        const hLen = g.len * 0.72;
+        const dLen = g.len * 0.48;
+
+        const gradV = ctx.createLinearGradient(g.x, g.y - vLen, g.x, g.y + vLen);
+        gradV.addColorStop(0, `rgba(${col}, 0)`);
+        gradV.addColorStop(0.5, `rgba(${col}, ${g.alpha})`);
+        gradV.addColorStop(1, `rgba(${col}, 0)`);
+        ctx.strokeStyle = gradV;
+        ctx.beginPath();
+        ctx.moveTo(g.x, g.y - vLen);
+        ctx.lineTo(g.x, g.y + vLen);
+        ctx.stroke();
+
+        const gradH = ctx.createLinearGradient(g.x - hLen, g.y, g.x + hLen, g.y);
+        gradH.addColorStop(0, `rgba(${col}, 0)`);
+        gradH.addColorStop(0.5, `rgba(${col}, ${g.alpha * 0.78})`);
+        gradH.addColorStop(1, `rgba(${col}, 0)`);
+        ctx.strokeStyle = gradH;
+        ctx.beginPath();
+        ctx.moveTo(g.x - hLen, g.y);
+        ctx.lineTo(g.x + hLen, g.y);
+        ctx.stroke();
+
+        const dx = dLen * 0.58;
+        const dy = dLen * 0.81;
+        ctx.strokeStyle = `rgba(${col}, ${g.alpha * 0.42})`;
+        ctx.beginPath();
+        ctx.moveTo(g.x - dx, g.y - dy);
+        ctx.lineTo(g.x + dx, g.y + dy);
+        ctx.moveTo(g.x + dx, g.y - dy);
+        ctx.lineTo(g.x - dx, g.y + dy);
+        ctx.stroke();
+
+        ctx.fillStyle = `rgba(${col}, ${Math.min(1, g.alpha * 0.95)})`;
+        ctx.beginPath();
+        ctx.arc(g.x, g.y, 1.25, 0, TAU);
+        ctx.fill();
+      }
+      ctx.restore();
+    }
+
+    ctx.restore();
+  }
+
+  // =========================================================================
+  // Responsive High-DPI Canvas Resize & Animation Loop
+  // =========================================================================
+  let cssW = canvas.clientWidth || window.innerWidth;
+  let cssH = canvas.clientHeight || window.innerHeight;
+  let dpr = Math.min(window.devicePixelRatio || 1, 3.5);
+
+  function resizeCanvas() {
+    cssW = canvas.clientWidth || window.innerWidth;
+    cssH = canvas.clientHeight || window.innerHeight;
+    dpr = Math.min(window.devicePixelRatio || 1, 3.5);
+    canvas.width = Math.max(1, Math.round(cssW * dpr));
+    canvas.height = Math.max(1, Math.round(cssH * dpr));
+  }
+
+  window.addEventListener("resize", resizeCanvas, { passive: true });
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener("resize", resizeCanvas, { passive: true });
+  }
+  resizeCanvas();
+
+  const params = new URLSearchParams(window.location.search);
+  const fixedTimeParam = params.get("t");
+
+  if (fixedTimeParam !== null && !Number.isNaN(parseFloat(fixedTimeParam))) {
+    const fixedT = Math.max(0, parseFloat(fixedTimeParam));
+    renderFrame(fixedT, cssW, cssH, dpr);
+  } else {
+    let startPerf = performance.now();
+
+    function loop(now) {
+      const t = Math.max(0, (now - startPerf) / 1000);
+      renderFrame(t, cssW, cssH, dpr);
+      requestAnimationFrame(loop);
+    }
+
+    // Double-tap on mobile or 'R' key on desktop replays from t = 0.00s
+    let lastTap = 0;
+    canvas.addEventListener("pointerdown", () => {
+      const now = performance.now();
+      if (now - lastTap < 320) {
+        resetPetals();
+        startPerf = now;
+      }
+      lastTap = now;
+    }, { passive: true });
+
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "r" || e.key === "R") {
+        resetPetals();
+        startPerf = performance.now();
+      }
+    });
+
+    requestAnimationFrame(loop);
+  }
+})();
+</script>
+</body>
+</html>
